@@ -1,3 +1,8 @@
 __pycache__/
 *.pyc
 .DS_Store
+.claude/settings.local.json
+._*
+data/
+reports_md/
+reports_md.zip
