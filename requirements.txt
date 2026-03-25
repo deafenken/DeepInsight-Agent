@@ -1,0 +1,10 @@
+streamlit
+pandas
+openai
+requests
+chromadb
+streamlit-echarts
+pdfplumber
+langchain-text-splitters
+faker
+sentence-transformers

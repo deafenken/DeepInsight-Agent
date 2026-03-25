@@ -4,14 +4,13 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from openai import OpenAI
-from streamlit_echarts import st_echarts
 
 from agent_tools import run_advanced_analysis
-from app import load_chroma_stats, load_filters, render_chart, render_sources
+from ui_common import load_chroma_stats, load_filters, render_chart, render_echarts, render_sources
 from app_persona import ROLE_PROMPTS
 from cache_tools import SemanticCache
 from retriever import DEFAULT_CHROMA_PATH, DEFAULT_DB_PATH, answer_query, create_default_client
-from workflow_report import generate_report, plan_outline, query_chroma_chunks, query_financial_sql
+from workflow_report import render_workflow_result, run_workflow
 from app_whitebox import MOCK_ANSWER, MOCK_CHUNKS, MOCK_REASONING, MOCK_SQL, get_reasoning_content
 
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
@@ -530,7 +529,10 @@ def render_basic_chat_tab(filters, top_k, use_cache):
     st.markdown('<section class="apple-section">', unsafe_allow_html=True)
     section_head("💬", "智能问答", "融合 SQL、向量检索与语义缓存的基础企业分析工作台。")
     cache = get_semantic_cache() if use_cache else None
-    client = create_default_client()
+    try:
+        client = create_default_client()
+    except Exception:
+        client = None
     for message in st.session_state.system_messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
@@ -538,6 +540,9 @@ def render_basic_chat_tab(filters, top_k, use_cache):
                 render_chart(message["chart_spec"])
             if message.get("sources"):
                 render_sources(message["sources"])
+            if message.get("warnings"):
+                for warning in message["warnings"]:
+                    st.caption(warning)
     prompt = st.chat_input("输入企业运营、财务或研报分析问题", key="system_chat_input")
     if prompt:
         st.session_state.system_messages.append({"role": "user", "content": prompt})
@@ -557,6 +562,11 @@ def render_basic_chat_tab(filters, top_k, use_cache):
                 else:
                     result = answer_query(prompt, filters=filters, top_k=top_k, client=client)
                 st.markdown(result["answer_markdown"])
+                if client is None:
+                    st.caption("当前未配置 DEEPSEEK_API_KEY，已自动降级为本地检索摘要模式。")
+                if result.get("warnings"):
+                    for warning in result["warnings"]:
+                        st.caption(warning)
                 render_chart(result.get("chart_spec"))
                 render_sources(result.get("sources"))
                 st.session_state.system_messages.append(
@@ -565,6 +575,7 @@ def render_basic_chat_tab(filters, top_k, use_cache):
                         "content": result["answer_markdown"],
                         "chart_spec": result.get("chart_spec"),
                         "sources": result.get("sources"),
+                        "warnings": result.get("warnings"),
                     }
                 )
             except Exception as exc:
@@ -596,44 +607,29 @@ def render_persona_tab(role, model):
     st.markdown('</section>', unsafe_allow_html=True)
 
 
-def render_workflow_tab():
+def render_workflow_tab(filters, top_k):
     st.markdown('<section class="apple-section">', unsafe_allow_html=True)
     section_head("🪄", "自动化报告", "用串行状态机把大纲规划、SQL、RAG 与研报生成一键串起来。")
     topic = st.text_input("报告主题", value="请为 ST生物 生成经营质量与风险诊断报告", key="workflow_topic")
     if st.button("生成深度诊断报告", key="workflow_button"):
         try:
+            client = create_default_client()
+        except Exception:
+            client = None
+        try:
             with st.status("正在执行自动化研报工作流...", expanded=True) as status:
                 st.write("步骤一：规划报告大纲")
-                outline = plan_outline(topic)
-                st.write("步骤二：查询关系数据库获取财务指标")
-                sql_text, sql_rows = query_financial_sql(topic)
-                st.write("步骤三：查询 ChromaDB 获取研报信息")
-                rag_chunks = query_chroma_chunks(topic)
+                st.write("步骤二：执行真实 SQL 检索")
+                st.write("步骤三：执行真实向量检索")
                 st.write("步骤四：聚合信息并生成最终研报")
-                report_markdown = generate_report(topic, outline, sql_rows, rag_chunks)
+                st.session_state.workflow_result = run_workflow(topic, filters=filters, top_k=top_k, client=client)
                 status.update(label="研报生成完成", state="complete")
-            st.session_state.workflow_result = {
-                "outline": outline,
-                "sql": sql_text,
-                "sql_rows": sql_rows,
-                "rag_chunks": rag_chunks,
-                "report_markdown": report_markdown,
-            }
         except Exception as exc:
             st.error(f"生成失败：{exc}")
 
     result = st.session_state.workflow_result
     if result:
-        st.markdown("### 报告大纲")
-        st.markdown(result["outline"])
-        st.markdown("### 最终研报")
-        st.markdown(result["report_markdown"])
-        with st.expander("中间过程", expanded=False):
-            st.code(result["sql"], language="sql")
-            st.dataframe(pd.DataFrame(result["sql_rows"]))
-            for chunk in result["rag_chunks"]:
-                st.markdown(f"**来源：{chunk['metadata']['source']} 第{chunk['metadata']['page']}页**")
-                st.caption(chunk["text"])
+        render_workflow_result(result)
         st.download_button("下载 Markdown 报告", result["report_markdown"].encode("utf-8"), file_name="system_report.md", mime="text/markdown")
     st.markdown('</section>', unsafe_allow_html=True)
 
@@ -646,11 +642,17 @@ def render_graph_tab(company_name):
         st.markdown('</section>', unsafe_allow_html=True)
         return
     try:
-        result = run_advanced_analysis("请分析该公司的股权结构、司法风险与创新能力", company_name=company_name, client=create_default_client())
+        client = create_default_client()
+    except Exception:
+        client = None
+    try:
+        result = run_advanced_analysis("请分析该公司的股权结构、司法风险与创新能力", company_name=company_name, client=client)
+        if client is None:
+            st.caption("当前未配置 DEEPSEEK_API_KEY，已降级为结构化本地分析结果。")
         st.markdown(result["answer_markdown"])
         for block in result.get("viz_blocks") or []:
             st.markdown(f"### {block['title']}")
-            st_echarts(options=block["option"], height="460px")
+            render_echarts(options=block["option"], height="460px")
         render_sources(result.get("sources"))
         with st.expander("高级工具明细", expanded=False):
             st.json(result.get("tool_results"))
@@ -728,7 +730,7 @@ def main():
     with tab_persona:
         render_persona_tab(role, model)
     with tab_workflow:
-        render_workflow_tab()
+        render_workflow_tab(filters, top_k)
     with tab_graph:
         render_graph_tab(selected_company)
     with tab_whitebox:

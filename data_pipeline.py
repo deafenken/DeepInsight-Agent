@@ -3,6 +3,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 import re
 import sqlite3
 from dataclasses import dataclass

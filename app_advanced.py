@@ -2,19 +2,24 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-from streamlit_echarts import st_echarts
 
 from agent_tools import run_advanced_analysis, tool_get_equity_penetration, tool_get_innovation_index, tool_get_risk_radar
-from app import build_sidebar, get_client, load_chroma_stats, load_filters, render_sources
-from retriever import DEFAULT_CHROMA_PATH, DEFAULT_DB_PATH
+from retriever import DEFAULT_CHROMA_PATH, DEFAULT_DB_PATH, create_optional_client
+from ui_common import build_sidebar, load_chroma_stats, load_filters, render_echarts, render_sources
 
 st.set_page_config(page_title="企业全景画像与高级分析", layout="wide")
+
+
+def get_client():
+    if "advanced_deepseek_client" not in st.session_state:
+        st.session_state.advanced_deepseek_client = create_optional_client()
+    return st.session_state.advanced_deepseek_client
 
 
 def render_viz_blocks(viz_blocks):
     for block in viz_blocks or []:
         st.markdown(f"### {block['title']}")
-        st_echarts(options=block["option"], height="480px")
+        render_echarts(options=block["option"], height="480px")
 
 
 def render_debug_details(tool_results):
@@ -44,7 +49,7 @@ def render_radar_summary(company_name):
         "radar": {"indicator": [{"name": key, "max": 100} for key in dimensions.keys()]},
         "series": [{"type": "radar", "data": [{"name": company_name, "value": list(dimensions.values())}]}],
     }
-    st_echarts(options=option, height="420px")
+    render_echarts(options=option, height="420px")
     col1, col2 = st.columns(2)
     with col1:
         st.dataframe(pd.DataFrame(risk_data.get("details") or []))
@@ -96,7 +101,7 @@ def render_equity_tab(default_company):
             }
         ],
     }
-    st_echarts(options=option, height="620px")
+    render_echarts(options=option, height="620px")
     st.dataframe(pd.DataFrame(equity_data["edges"]))
 
 
@@ -137,7 +142,14 @@ def main():
                     if not company_name:
                         st.error("当前没有可用企业，请先导入数据。")
                         return
-                    result = run_advanced_analysis(prompt, company_name=company_name, client=get_client())
+                    client = get_client()
+                    try:
+                        result = run_advanced_analysis(prompt, company_name=company_name, client=client)
+                    except Exception as exc:
+                        st.error(str(exc))
+                        return
+                if client is None:
+                    st.caption("当前未配置 DEEPSEEK_API_KEY，已降级为结构化本地分析结果。")
                 st.markdown(result["answer_markdown"])
                 render_viz_blocks(result.get("viz_blocks"))
                 render_sources(result.get("sources"))

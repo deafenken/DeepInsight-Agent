@@ -320,7 +320,16 @@ def run_advanced_analysis(question, company_name, db_path=DEFAULT_DB_PATH, clien
     innovation_data = tool_get_innovation_index(company_name, db_path=db_path) if route["needs_innovation"] else {"company_name": company_name, "dimensions": {}, "details": []}
     context = build_context_for_llm(question, equity_data, risk_data, innovation_data)
     if client is None:
-        client = DeepSeekClient(chat_model=DEEPSEEK_CHAT_MODEL)
+        return {
+            "answer_markdown": context,
+            "sources": build_sources_from_tools(equity_data, risk_data, innovation_data),
+            "viz_blocks": build_viz_blocks(equity_data, risk_data, innovation_data),
+            "tool_results": {
+                "equity": equity_data,
+                "risk": risk_data,
+                "innovation": innovation_data,
+            },
+        }
     messages = [
         {
             "role": "system",

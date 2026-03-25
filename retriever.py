@@ -363,18 +363,26 @@ def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chrom
     sql = None
     sql_rows = []
     chunks = []
+    warnings = []
 
     if route_info["route"] in {"sql", "hybrid"}:
-        sql = generate_sql(question, filters, client)
         try:
+            sql = generate_sql(question, filters, client)
             sql_rows = execute_sql(sql, db_path)
-        except sqlite3.Error:
+        except (ValueError, sqlite3.Error) as exc:
             sql = None
             sql_rows = []
+            warnings.append(f"SQL检索不可用：{exc}")
             if route_info["route"] == "sql":
                 route_info["route"] = "vector"
     if route_info["route"] in {"vector", "hybrid"}:
-        chunks = retrieve_chunks(question, filters, top_k, client, chroma_path, collection_name)
+        try:
+            chunks = retrieve_chunks(question, filters, top_k, client, chroma_path, collection_name)
+        except Exception as exc:
+            chunks = []
+            warnings.append(f"向量检索不可用：{exc}")
+            if route_info["route"] == "vector":
+                route_info["route"] = "sql"
 
     sources = build_sources(sql_rows, chunks)
     context_bundle = build_context_bundle(sql_rows, chunks)
@@ -391,8 +399,15 @@ def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chrom
         "context": context_bundle["text"],
         "answer_markdown": answer_markdown,
         "chart_spec": chart_spec,
+        "warnings": warnings,
     }
 
 
 def create_default_client():
+    return DeepSeekClient()
+
+
+def create_optional_client():
+    if not os.getenv("DEEPSEEK_API_KEY"):
+        return None
     return DeepSeekClient()
