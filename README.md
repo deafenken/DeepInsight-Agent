@@ -19,6 +19,12 @@
 streamlit run app_system.py
 ```
 
+也可以直接使用：
+
+```bash
+make run
+```
+
 推荐演示顺序：
 
 1. 企业诊断
@@ -37,6 +43,12 @@ streamlit run app_system.py
 
 ```bash
 uvicorn webapp.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+或：
+
+```bash
+make web
 ```
 
 打开地址：
@@ -58,6 +70,12 @@ http://localhost:8000
 
 ```bash
 python3 demo_cache.py
+```
+
+或：
+
+```bash
+make cache
 ```
 
 生成目录：
@@ -119,6 +137,28 @@ streamlit run app_advanced.py
 streamlit run workflow_report.py
 ```
 
+## 测试
+
+项目当前已补充一套基础冒烟测试，覆盖：
+
+- 数据库与 Chroma 可用性
+- 主问答链路
+- 自动化报告链路
+- 高级分析链路
+- 演示缓存 JSON 完整性
+
+运行方式：
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+或：
+
+```bash
+make test
+```
+
 ## 环境变量
 
 启用 DeepSeek 增强模式时：
@@ -134,8 +174,6 @@ export DEEPSEEK_MODEL=deepseek-chat
 - 宏观问答
 - 双公司比较
 - 企业与宏观联动
-
-## 环境变量
 
 ## 降级说明
 
