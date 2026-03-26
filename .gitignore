@@ -3,6 +3,10 @@ __pycache__/
 .DS_Store
 .claude/settings.local.json
 ._*
-data/
+data/*
+!data/raw_macro/
+!data/raw_macro/*.xlsx
+!data/archives/
+!data/archives/*.zip
 reports_md/
 reports_md.zip

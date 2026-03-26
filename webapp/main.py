@@ -6,10 +6,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from agent_tools import run_advanced_analysis
-from app_whitebox import MOCK_ANSWER, MOCK_CHUNKS, MOCK_REASONING, MOCK_SQL
-from retriever import DEFAULT_DB_PATH, answer_query, create_optional_client, get_connection
-from workflow_report import run_workflow
+from deepinsight.core.agent_tools import run_advanced_analysis
+from deepinsight.apps.app_whitebox import MOCK_ANSWER, MOCK_CHUNKS, MOCK_REASONING, MOCK_SQL
+from deepinsight.core.retriever import DEFAULT_DB_PATH, answer_query, create_optional_client, get_connection
+from deepinsight.apps.workflow_report import run_workflow
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"

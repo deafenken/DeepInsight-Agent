@@ -63,7 +63,7 @@ python3 demo_cache.py
 生成目录：
 
 ```text
-/Volumes/ORICO/code1/demo_cache/
+demo_cache/
 ```
 
 当前缓存覆盖：
@@ -95,7 +95,7 @@ python3 db_expand.py
 项目支持将国家统计局卫生类 Excel 直接导入 `fact_macro_data`：
 
 ```bash
-python3 macro_import.py --excel-path "/Volumes/ORICO/code1/国家统计局_卫生_2022_2024.xlsx"
+python3 macro_import.py --excel-path "/Volumes/ORICO/code1/data/raw_macro/国家统计局_卫生_2022_2024.xlsx"
 ```
 
 ## 主要页面
@@ -145,11 +145,28 @@ export DEEPSEEK_MODEL=deepseek-chat
 
 ## 代码结构
 
+当前仓库已经按功能整理为更接近成品项目的结构，顶层保留的是兼容启动入口，主要实现代码已归档到 `deepinsight/` 包下：
+
+- [deepinsight/apps](/Volumes/ORICO/code1/deepinsight/apps): Streamlit 页面与比赛主入口
+- [deepinsight/core](/Volumes/ORICO/code1/deepinsight/core): 检索、缓存、图谱工具与通用 UI 组件
+- [deepinsight/dataops](/Volumes/ORICO/code1/deepinsight/dataops): 数据入库、数据库初始化与图谱扩展脚本
+- [deepinsight/demo](/Volumes/ORICO/code1/deepinsight/demo): 演示缓存 JSON 构建逻辑
+- [deepinsight/experiments](/Volumes/ORICO/code1/deepinsight/experiments): 非主链路实验代码
+- [deepinsight/config.py](/Volumes/ORICO/code1/deepinsight/config.py): 统一路径与项目级配置
+- [webapp](/Volumes/ORICO/code1/webapp): 自建网页版本
+- [demo_cache](/Volumes/ORICO/code1/demo_cache): 已生成的演示缓存 JSON
+- [audit_md](/Volumes/ORICO/code1/audit_md): 项目审查与问题记录文档
+- [assets](/Volumes/ORICO/code1/assets): 图片等静态资源
+- [data/raw_macro](/Volumes/ORICO/code1/data/raw_macro): 宏观原始 Excel 数据
+- [data/archives](/Volumes/ORICO/code1/data/archives): 原始压缩包与归档文件
+
+常用兼容入口仍可直接使用：
+
 - [app_system.py](/Volumes/ORICO/code1/app_system.py): 比赛展示主入口
-- [retriever.py](/Volumes/ORICO/code1/retriever.py): SQL / 宏观 / 向量检索与本地回答生成
-- [agent_tools.py](/Volumes/ORICO/code1/agent_tools.py): 图谱、风险、创新分析工具
-- [workflow_report.py](/Volumes/ORICO/code1/workflow_report.py): 自动化报告工作流
-- [macro_import.py](/Volumes/ORICO/code1/macro_import.py): 宏观 Excel 导入脚本
+- [app.py](/Volumes/ORICO/code1/app.py): 基础问答入口
+- [app_advanced.py](/Volumes/ORICO/code1/app_advanced.py): 高级分析入口
+- [workflow_report.py](/Volumes/ORICO/code1/workflow_report.py): 自动化报告入口
+- [macro_import.py](/Volumes/ORICO/code1/macro_import.py): 宏观 Excel 导入入口
 
 ## 当前数据状态
 
