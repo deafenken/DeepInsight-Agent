@@ -159,6 +159,10 @@ def route_question(question, filters=None, client=None):
         route = "vector"
     else:
         route = "hybrid"
+    if is_macro_question(question):
+        route = "sql"
+    if not client and filters.get("company_name") and any(word in question for word in ["经营", "财务", "利润", "收入", "风险", "诊断", "质量"]):
+        route = "hybrid"
     chart_intent = "line" if any(word in question for word in ["趋势", "变化", "历年"]) else "none"
     return {"route": route, "chart_intent": chart_intent, "reason": "rule_based"}
 
@@ -215,24 +219,200 @@ def quote_sql_text(value):
     return "'" + str(value).replace("'", "''") + "'"
 
 
-def generate_sql(question, filters=None, client=None):
+def infer_year_from_question(question):
+    match = re.search(r"(20\d{2})", question or "")
+    return int(match.group(1)) if match else None
+
+
+def infer_years_from_question(question):
+    years = re.findall(r"(20\d{2})", question or "")
+    return sorted({int(year) for year in years})
+
+
+def find_company_names_in_question(question, db_path=DEFAULT_DB_PATH, limit=3):
+    text = question or ""
+    conn = get_connection(db_path)
+    try:
+        rows = conn.execute(
+            """
+            SELECT DISTINCT company_name
+            FROM dim_company
+            WHERE company_name NOT LIKE '%模拟%'
+            ORDER BY LENGTH(company_name) DESC
+            """
+        ).fetchall()
+        matched = []
+        for row in rows:
+            company_name = row["company_name"]
+            if company_name and company_name in text and company_name not in matched:
+                matched.append(company_name)
+                if len(matched) >= limit:
+                    break
+        return matched
+    finally:
+        conn.close()
+
+
+def resolve_local_query_filters(question, filters=None, db_path=DEFAULT_DB_PATH):
+    resolved = dict(filters or {})
+    question_companies = find_company_names_in_question(question, db_path=db_path)
+    if question_companies:
+        resolved["company_names"] = question_companies
+        if not resolved.get("company_name"):
+            resolved["company_name"] = question_companies[0]
+    if resolved.get("report_year") is None:
+        year_from_question = infer_year_from_question(question)
+        if year_from_question:
+            resolved["report_year"] = year_from_question
+    if resolved.get("company_name") and resolved.get("report_year") is None:
+        conn = get_connection(db_path)
+        try:
+            row = conn.execute(
+                """
+                SELECT MAX(d.report_year) AS report_year
+                FROM dim_document d
+                JOIN dim_company c ON d.company_id = c.company_id
+                WHERE c.company_name = ? AND d.report_year IS NOT NULL AND d.is_latest = 1
+                """,
+                (resolved["company_name"],),
+            ).fetchone()
+            if row and row["report_year"] is not None:
+                resolved["report_year"] = int(row["report_year"])
+        finally:
+            conn.close()
+    return resolved
+
+
+def is_macro_question(question):
+    keywords = ["宏观", "统计局", "cpi", "ppi", "m2", "gdp", "卫生", "医疗卫生", "儿童健康", "病床", "住院日", "机构数"]
+    text = question or ""
+    lower_question = text.lower()
+    return any(keyword in text for keyword in keywords if re.search(r"[\u4e00-\u9fff]", keyword)) or any(
+        keyword in lower_question for keyword in keywords if not re.search(r"[\u4e00-\u9fff]", keyword)
+    )
+
+
+def extract_macro_query_phrases(question):
+    text = re.sub(r"20\d{2}", " ", question or "")
+    stop_phrases = [
+        "请分析",
+        "国家统计局",
+        "卫生数据",
+        "数据里",
+        "分别是多少",
+        "是多少",
+        "怎么样",
+        "变化趋势",
+        "趋势",
+        "分析",
+        "请问",
+    ]
+    for phrase in stop_phrases:
+        text = text.replace(phrase, " ")
+    blocks = [block.strip() for block in re.findall(r"[\u4e00-\u9fffA-Za-z]+", text) if len(block.strip()) >= 2]
+    phrases = set(blocks)
+    for block in blocks:
+        upper = min(len(block), 8)
+        for size in range(2, upper + 1):
+            for start in range(0, len(block) - size + 1):
+                phrases.add(block[start : start + size])
+    generic = {"数据", "卫生", "统计局", "国家", "请问", "分析"}
+    return [phrase for phrase in sorted(phrases, key=len, reverse=True) if phrase not in generic]
+
+
+def find_macro_indicator_names(question, db_path=DEFAULT_DB_PATH, limit=5):
+    conn = get_connection(db_path)
+    try:
+        if "医疗卫生机构" in (question or "") and any(word in (question or "") for word in ["变化", "趋势", "数量", "机构数"]):
+            preferred = [
+                row["indicator_name"]
+                for row in conn.execute(
+                    """
+                    SELECT indicator_name
+                    FROM dict_macro_indicator
+                    WHERE indicator_name LIKE '医疗卫生机构-%数'
+                    ORDER BY CASE
+                        WHEN indicator_name = '医疗卫生机构-医疗卫生机构数' THEN 0
+                        WHEN indicator_name = '医疗卫生机构-医院数' THEN 1
+                        WHEN indicator_name = '医疗卫生机构-专业公共卫生机构数' THEN 2
+                        ELSE 9
+                    END, indicator_name
+                    LIMIT ?
+                    """,
+                    (limit,),
+                ).fetchall()
+            ]
+            if preferred:
+                return preferred
+        tokens = extract_macro_query_phrases(question)
+        candidates = []
+        for row in conn.execute("SELECT indicator_name FROM dict_macro_indicator"):
+            indicator_name = row["indicator_name"]
+            score = 0
+            for token in tokens:
+                if token in indicator_name:
+                    score += max(1, len(token))
+            if score:
+                candidates.append((score, indicator_name))
+        candidates.sort(key=lambda item: (-item[0], len(item[1])))
+        return [name for _, name in candidates[:limit]]
+    finally:
+        conn.close()
+
+
+def generate_local_macro_sql(question, db_path=DEFAULT_DB_PATH):
+    indicator_names = find_macro_indicator_names(question, db_path=db_path, limit=3)
+    if not indicator_names:
+        raise ValueError("未匹配到可用宏观指标。")
+    years = infer_years_from_question(question)
+    year_filter = ""
+    if years:
+        quoted_dates = ", ".join(quote_sql_text(f"{year}-12-31") for year in years)
+        year_filter = f" AND f.period_date IN ({quoted_dates})"
+    indicator_filter = ", ".join(quote_sql_text(name) for name in indicator_names)
+    order_sql = "ORDER BY d.indicator_name, f.period_date"
+    if any(word in question for word in ["趋势", "变化", "历年"]):
+        order_sql = "ORDER BY d.indicator_name, f.period_date"
+    return sanitize_sql(
+        f"""
+        SELECT
+            d.indicator_name,
+            f.period_date,
+            f.value_num,
+            COALESCE(f.unit, d.default_unit) AS unit,
+            f.region_name,
+            d.source_name
+        FROM fact_macro_data f
+        JOIN dict_macro_indicator d ON f.macro_indicator_id = d.macro_indicator_id
+        WHERE d.indicator_name IN ({indicator_filter}){year_filter}
+        {order_sql}
+        """
+    )
+
+
+def generate_sql(question, filters=None, client=None, db_path=DEFAULT_DB_PATH):
     if client:
         raw = call_llm_serial(client, "text_to_sql", build_sql_prompt(question, filters))
         return sanitize_sql(raw)
-    company = (filters or {}).get("company_name")
-    year = (filters or {}).get("report_year")
-    if company and year:
+    resolved_filters = resolve_local_query_filters(question, filters, db_path=db_path)
+    company = resolved_filters.get("company_name")
+    company_names = resolved_filters.get("company_names") or ([company] if company else [])
+    year = resolved_filters.get("report_year")
+    if company_names and year:
+        company_filter = ", ".join(quote_sql_text(name) for name in company_names[:2])
         return sanitize_sql(
             f"""
-            SELECT c.company_name, d.report_year, i.indicator_name, f.value_num, f.unit, f.source_page
+            SELECT c.company_name, d.report_year, i.indicator_name, f.period_label, f.value_role, f.value_num, f.unit, f.source_page
             FROM fact_financial_report f
             JOIN dim_document d ON f.document_id = d.document_id
             JOIN dim_company c ON d.company_id = c.company_id
             JOIN dict_financial_indicator i ON f.indicator_id = i.indicator_id
-            WHERE d.is_latest = 1 AND c.company_name = {quote_sql_text(company)} AND d.report_year = {int(year)}
-            ORDER BY i.indicator_name
+            WHERE d.is_latest = 1 AND c.company_name IN ({company_filter}) AND d.report_year = {int(year)}
+            ORDER BY c.company_name, i.indicator_name, f.value_role DESC, f.period_label DESC
             """
         )
+    if is_macro_question(question):
+        return generate_local_macro_sql(question, db_path=db_path)
     raise ValueError("缺少 LLM 时，默认 SQL 生成仅支持传入 company_name 与 report_year 过滤。")
 
 
@@ -268,7 +448,7 @@ def retrieve_chunks(question, filters=None, top_k=5, client=None, chroma_path=DE
     embedding_client = LocalEmbeddingClient()
     embedding = embedding_client.embed([question])[0]
     where = build_chroma_filter(filters)
-    kwargs = {"query_embeddings": [embedding], "n_results": top_k, "include": ["documents", "metadatas", "distances"]}
+    kwargs = {"query_embeddings": [embedding], "n_results": min(max(top_k * 3, top_k), 15), "include": ["documents", "metadatas", "distances"]}
     if where:
         kwargs["where"] = where
     result = collection.query(**kwargs)
@@ -276,29 +456,185 @@ def retrieve_chunks(question, filters=None, top_k=5, client=None, chroma_path=DE
     documents = result.get("documents", [[]])[0]
     metadatas = result.get("metadatas", [[]])[0]
     distances = result.get("distances", [[]])[0]
+    query_terms = [term for term in re.findall(r"[\u4e00-\u9fffA-Za-z0-9]+", question or "") if len(term) >= 2]
+    query_focus_terms = ["经营", "风险", "环境", "主营业务", "概述", "行业", "市场", "竞争", "研发", "现金流", "收入", "利润"]
+    scored_chunks = []
     for document, metadata, distance in zip(documents, metadatas, distances):
-        item = {"text": document, "metadata": metadata, "distance": distance}
+        compact = re.sub(r"\s+", "", document or "")
+        if len(compact) < 20:
+            continue
+        if compact.count("|") >= 8 and len(set(compact.replace("|", ""))) <= 10:
+            continue
+        if compact.count("|") >= 12 and len(re.findall(r"[\u4e00-\u9fffA-Za-z]", compact)) < 40:
+            continue
+        if compact.startswith("|---") or compact.startswith("##") and compact.count("|") >= 10:
+            continue
+        pipe_ratio = compact.count("|") / max(len(compact), 1)
+        if pipe_ratio > 0.08:
+            continue
+        text = document or ""
+        if metadata and metadata.get("page") is None:
+            continue
+        if any(term in text for term in ["股东与股东大会", "独立董事", "监事会", "公司治理", "释义"]):
+            continue
+        if any(term in question for term in ["经营", "风险", "环境", "质量"]) and not any(term in text for term in query_focus_terms):
+            if compact.count("|") >= 3:
+                continue
+        score = -(distance or 0)
+        if metadata and metadata.get("page") in {None, 1, 2, 3, 4, 5}:
+            score -= 0.35
+        if "年度报告全文" in text:
+            score -= 0.15
+        noisy_terms = ["董事", "监事", "股东大会", "释义", "名词解释", "公司治理", "审计", "账龄", "坏账准备"]
+        score -= sum(0.12 for term in noisy_terms if term in text)
+        positive_terms = ["主营业务", "概述", "经营情况", "风险", "核心竞争力", "行业", "市场", "管理层", "研发", "现金流", "营业收入", "净利润"]
+        score += sum(0.16 for term in positive_terms if term in text)
+        score += sum(min(0.08 * text.count(term), 0.24) for term in query_terms if term in text)
+        scored_chunks.append((score, {"text": document, "metadata": metadata, "distance": distance}))
+    scored_chunks.sort(key=lambda item: item[0], reverse=True)
+    for _, item in scored_chunks[:top_k]:
         chunks.append(item)
     return chunks
 
 
 def build_sources(sql_rows, chunks):
-    sources = []
+    company_names = []
     for row in sql_rows:
+        company_name = row.get("company_name")
+        if company_name and company_name not in company_names:
+            company_names.append(company_name)
+    sources = []
+    seen_labels = set()
+    ordered_sql_rows = list(sql_rows)
+    if len(company_names) >= 2:
+        buckets = {name: [] for name in company_names}
+        other_rows = []
+        for row in sql_rows:
+            if row.get("company_name") in buckets:
+                buckets[row["company_name"]].append(row)
+            else:
+                other_rows.append(row)
+        ordered_sql_rows = []
+        max_len = max(len(items) for items in buckets.values()) if buckets else 0
+        for index in range(max_len):
+            for company_name in company_names:
+                if index < len(buckets[company_name]):
+                    ordered_sql_rows.append(buckets[company_name][index])
+        ordered_sql_rows.extend(other_rows)
+    for row in ordered_sql_rows:
         parts = []
         if row.get("company_name"):
             parts.append(str(row["company_name"]))
         if row.get("report_year"):
             parts.append(f"{row['report_year']}年")
+        if row.get("indicator_name") and not row.get("company_name"):
+            parts.append(str(row["indicator_name"]))
+        if row.get("period_date"):
+            parts.append(str(row["period_date"]))
+        if row.get("source_name"):
+            parts.append(str(row["source_name"]))
         if row.get("source_page"):
             parts.append(f"第{row['source_page']}页")
         if parts:
-            sources.append({"type": "sql", "label": " / ".join(parts), "snippet": json.dumps(row, ensure_ascii=False)})
+            label = " / ".join(parts)
+            if label in seen_labels:
+                continue
+            seen_labels.add(label)
+            sources.append({"type": "sql", "label": label, "snippet": json.dumps(row, ensure_ascii=False)})
     for chunk in chunks:
         metadata = chunk.get("metadata") or {}
         label = f"{metadata.get('source', '未知来源')} 第{metadata.get('page') or '?'}页"
+        if label in seen_labels:
+            continue
+        seen_labels.add(label)
         sources.append({"type": "vector", "label": label, "snippet": chunk.get("text", "")[:220]})
-    return sources
+    return sources[:16]
+
+
+def build_local_tags(sql_rows, macro_rows):
+    tags = []
+    grouped = {}
+    for row in sql_rows:
+        metric = row.get("indicator_name")
+        if metric:
+            grouped.setdefault(metric, []).append(row)
+
+    def current_row(rows):
+        return next((row for row in rows if row.get("value_role") == "current"), rows[0] if rows else None)
+
+    profit = current_row(grouped.get("归属于上市公司股东的净利润") or [])
+    cash = current_row(grouped.get("经营活动产生的现金流量净额") or [])
+    roe = current_row(grouped.get("净资产收益率") or [])
+    if profit and isinstance(profit.get("value_num"), (int, float)):
+        tags.append("盈利承压" if profit["value_num"] < 0 else "利润修复")
+    if cash and isinstance(cash.get("value_num"), (int, float)):
+        tags.append("现金流偏弱" if cash["value_num"] < 0 else "现金流为正")
+    if roe and isinstance(roe.get("value_num"), (int, float)) and roe["value_num"] < 0:
+        tags.append("回报率偏弱")
+    if macro_rows:
+        tags.append("宏观联动")
+    ordered = []
+    seen = set()
+    for tag in tags:
+        if tag not in seen:
+            ordered.append(tag)
+            seen.add(tag)
+    return ordered[:4]
+
+
+def normalize_unit_for_display(value, unit):
+    if unit == "%" and isinstance(value, (int, float)) and abs(value) > 1000:
+        return ""
+    return unit or ""
+
+
+def build_comparison_summary(sql_rows):
+    companies = []
+    grouped = {}
+    for row in sql_rows:
+        company_name = row.get("company_name")
+        metric = row.get("indicator_name")
+        if not company_name or not metric:
+            continue
+        if company_name not in companies:
+            companies.append(company_name)
+        grouped.setdefault(company_name, {}).setdefault(metric, []).append(row)
+    if len(companies) < 2:
+        return []
+    lines = []
+    for metric in ["营业收入", "归属于上市公司股东的净利润", "经营活动产生的现金流量净额", "总资产"]:
+        entries = []
+        for company in companies[:2]:
+            rows = grouped.get(company, {}).get(metric) or []
+            current = next((row for row in rows if row.get("value_role") == "current"), rows[0] if rows else None)
+            if current and current.get("value_num") is not None:
+                entries.append((company, current["value_num"], current.get("unit") or ""))
+        if len(entries) == 2:
+            ranked = sorted(entries, key=lambda item: item[1], reverse=True)
+            left_unit = normalize_unit_for_display(ranked[0][1], ranked[0][2])
+            right_unit = normalize_unit_for_display(ranked[1][1], ranked[1][2])
+            lines.append(f"- {metric}：{ranked[0][0]}（{ranked[0][1]}{left_unit}）高于{ranked[1][0]}（{ranked[1][1]}{right_unit}）")
+    return lines[:4]
+
+
+def pick_best_company_metric_rows(sql_rows, indicator_name):
+    rows_by_company = {}
+    for row in sql_rows:
+        if row.get("indicator_name") != indicator_name or not row.get("company_name"):
+            continue
+        if row.get("value_role") != "current":
+            continue
+        rows_by_company.setdefault(row["company_name"], []).append(row)
+    selected = []
+    for company_name, rows in rows_by_company.items():
+        def score(row):
+            unit = row.get("unit")
+            value = row.get("value_num")
+            unit_score = 2 if unit == "元" else (1 if unit not in {"%", None} else 0)
+            magnitude_score = abs(value) if isinstance(value, (int, float)) else 0
+            return (unit_score, magnitude_score)
+        selected.append(max(rows, key=score))
+    return selected
 
 
 def build_context_bundle(sql_rows, chunks):
@@ -317,6 +653,17 @@ def build_context_bundle(sql_rows, chunks):
     return {"text": "\n\n".join(sections)}
 
 
+def run_macro_side_query(question, db_path=DEFAULT_DB_PATH):
+    if not is_macro_question(question):
+        return None, []
+    try:
+        macro_sql = generate_local_macro_sql(question, db_path=db_path)
+        macro_rows = execute_sql(macro_sql, db_path)
+        return macro_sql, macro_rows
+    except (ValueError, sqlite3.Error):
+        return None, []
+
+
 def infer_chart_spec(sql_rows, route_info):
     if not sql_rows:
         return None
@@ -324,6 +671,7 @@ def infer_chart_spec(sql_rows, route_info):
     numeric_keys = [key for key, value in first.items() if isinstance(value, (int, float)) and key != "source_page"]
     if not numeric_keys:
         return None
+    y_key = "value_num" if "value_num" in numeric_keys else numeric_keys[0]
     x_key = None
     for candidate in ["report_year", "period_label", "period_date", "company_name", "indicator_name"]:
         if candidate in first:
@@ -331,11 +679,34 @@ def infer_chart_spec(sql_rows, route_info):
             break
     if not x_key:
         return None
+    company_names = []
+    for row in sql_rows:
+        if row.get("company_name") and row["company_name"] not in company_names:
+            company_names.append(row["company_name"])
+    if len(company_names) >= 2 and "company_name" in first and "indicator_name" in first:
+        preferred_indicator = next(
+            (
+                indicator
+                for indicator in ["营业收入", "归属于上市公司股东的净利润", "经营活动产生的现金流量净额", "总资产"]
+                if any(row.get("indicator_name") == indicator for row in sql_rows)
+            ),
+            None,
+        )
+        if preferred_indicator:
+            rows = pick_best_company_metric_rows(sql_rows, preferred_indicator)
+            if len(rows) >= 2:
+                return {
+                    "chart_type": "bar",
+                    "x": "company_name",
+                    "y": y_key,
+                    "series": None,
+                    "rows": rows,
+                }
     return {
         "chart_type": "line" if route_info.get("chart_intent") == "line" else "bar",
         "x": x_key,
-        "y": numeric_keys[0],
-        "series": "company_name" if "company_name" in first else None,
+        "y": y_key,
+        "series": "company_name" if "company_name" in first else ("indicator_name" if "indicator_name" in first and x_key == "period_date" else None),
         "rows": sql_rows,
     }
 
@@ -344,7 +715,143 @@ def generate_answer(question, context_bundle, sources, client=None):
     if not context_bundle["text"].strip():
         return "未检索到相关内容。当前数据库命中的公司和文档可能不足，请先导入更多年报或在问题中明确公司名与年份。"
     if not client:
-        answer = [f"问题：{question}", "", context_bundle["text"] or "未检索到相关上下文。"]
+        sql_rows = context_bundle.get("sql_rows") or []
+        macro_rows = context_bundle.get("macro_rows") or []
+        chunks = context_bundle.get("chunks") or []
+        answer = ["## 本地检索回答", ""]
+        answer.append(f"**问题**：{question}")
+        answer.append("")
+        answer.append("已基于本地 SQLite + Chroma 完成检索整合；当前为无大模型降级回答，结论以证据摘录为主。")
+        if sql_rows:
+            is_macro_result = any(row.get("period_date") for row in sql_rows) and not any(row.get("company_name") for row in sql_rows)
+            answer.extend(["", "### 结构化指标线索" if is_macro_result else "### 结构化财务线索"])
+            if is_macro_result:
+                grouped = {}
+                for row in sql_rows:
+                    metric = row.get("indicator_name") or "指标"
+                    grouped.setdefault(metric, []).append(row)
+                for metric, rows in list(grouped.items())[:6]:
+                    ordered = sorted(rows, key=lambda item: item.get("period_date") or "")
+                    parts = []
+                    for row in ordered:
+                        value = row.get("value_num") if row.get("value_num") is not None else row.get("value_text")
+                        unit = row.get("unit") or ""
+                        parts.append(f"{row.get('period_date', '?')}: {value}{unit}")
+                    answer.append(f"- {metric}：{'；'.join(parts)}")
+            else:
+                company_name = next((row.get("company_name") for row in sql_rows if row.get("company_name")), "该公司")
+                company_names = []
+                for row in sql_rows:
+                    if row.get("company_name") and row["company_name"] not in company_names:
+                        company_names.append(row["company_name"])
+                grouped = {}
+                company_grouped = {}
+                for row in sql_rows:
+                    metric = row.get("indicator_name") or row.get("indicator") or "指标"
+                    grouped.setdefault(metric, []).append(row)
+                    if row.get("company_name"):
+                        company_grouped.setdefault(row["company_name"], {}).setdefault(metric, []).append(row)
+                insight_lines = []
+                summary_bits = []
+                tags = build_local_tags(sql_rows, macro_rows)
+                comparison_lines = build_comparison_summary(sql_rows)
+                if tags:
+                    answer.extend(["", "### 经营标签", " | ".join(f"`{tag}`" for tag in tags)])
+                if comparison_lines:
+                    answer.extend(["", "### 对比卡片"])
+                    answer.extend(comparison_lines)
+                if len(company_names) > 1:
+                    answer.extend(["", "### 公司要点"])
+                    for company in company_names[:2]:
+                        bits = []
+                        for key_metric in ["营业收入", "归属于上市公司股东的净利润", "经营活动产生的现金流量净额"]:
+                            rows = company_grouped.get(company, {}).get(key_metric) or []
+                            current = next((row for row in rows if row.get("value_role") == "current"), rows[0] if rows else None)
+                            historical = next((row for row in rows if row.get("value_role") == "historical"), None)
+                            if not current or current.get("value_num") is None:
+                                continue
+                            direction = "待观察"
+                            if historical and historical.get("value_num") not in (None, 0):
+                                delta = current["value_num"] - historical["value_num"]
+                                direction = "上升" if delta > 0 else ("下降" if delta < 0 else "基本持平")
+                            bits.append(f"{key_metric}{direction}")
+                        if bits:
+                            answer.append(f"- {company}：{'、'.join(bits)}")
+                else:
+                    for key_metric in ["营业收入", "归属于上市公司股东的净利润", "经营活动产生的现金流量净额", "总资产", "研发费用"]:
+                        if key_metric not in grouped:
+                            continue
+                        rows = grouped[key_metric]
+                        current = next((row for row in rows if row.get("value_role") == "current"), rows[0])
+                        historical = next((row for row in rows if row.get("value_role") == "historical"), None)
+                        current_value = current.get("value_num")
+                        historical_value = historical.get("value_num") if historical else None
+                        unit = normalize_unit_for_display(current_value, current.get("unit"))
+                        line = f"{key_metric}当前值为 {current_value}{unit}"
+                        if historical_value not in (None, 0):
+                            delta = current_value - historical_value
+                            direction = "上升" if delta > 0 else ("下降" if delta < 0 else "基本持平")
+                            line += f"，较上期{direction}"
+                            if key_metric in {"营业收入", "归属于上市公司股东的净利润", "经营活动产生的现金流量净额"}:
+                                summary_bits.append(f"{key_metric}{direction}")
+                        insight_lines.append(f"- {company_name}{line}")
+                    if summary_bits:
+                        answer.extend(
+                            [
+                                "",
+                                "### 摘要判断",
+                                f"{company_name}当前呈现的特征是："
+                                + "、".join(summary_bits[:3])
+                                + "。该结论基于本地财务事实抽取，适合用作快速研判起点，详细判断仍需结合原文与多期数据继续追问。",
+                            ]
+                        )
+                    if insight_lines:
+                        answer.extend(["", "### 快速结论"])
+                        answer.extend(insight_lines[:4])
+                answer.extend(["", "### 关键指标"])
+                seen_metrics = set()
+                for row in sql_rows:
+                    metric = row.get("indicator_name") or row.get("indicator") or "指标"
+                    metric_key = f"{row.get('company_name','')}-{metric}" if len(company_names) > 1 else metric
+                    if metric_key in seen_metrics:
+                        continue
+                    value = row.get("value_num") if row.get("value_num") is not None else row.get("value_text")
+                    unit = normalize_unit_for_display(value, row.get("unit"))
+                    page = f"（第{row['source_page']}页）" if row.get("source_page") else ""
+                    prefix = f"{row.get('company_name')} / " if len(company_names) > 1 and row.get("company_name") else ""
+                    answer.append(f"- {prefix}{metric}：{value}{unit}{page}")
+                    seen_metrics.add(metric_key)
+                    if len(seen_metrics) >= 5:
+                        break
+        if macro_rows:
+            grouped = {}
+            for row in macro_rows:
+                metric = row.get("indicator_name") or "宏观指标"
+                grouped.setdefault(metric, []).append(row)
+            macro_summary = []
+            answer.extend(["", "### 宏观指标线索"])
+            for metric, rows in list(grouped.items())[:5]:
+                ordered = sorted(rows, key=lambda item: item.get("period_date") or "")
+                parts = []
+                for row in ordered:
+                    value = row.get("value_num") if row.get("value_num") is not None else row.get("value_text")
+                    unit = row.get("unit") or ""
+                    parts.append(f"{row.get('period_date', '?')}: {value}{unit}")
+                if len(ordered) >= 2 and all(item.get("value_num") is not None for item in (ordered[0], ordered[-1])):
+                    delta = ordered[-1]["value_num"] - ordered[0]["value_num"]
+                    direction = "上升" if delta > 0 else ("下降" if delta < 0 else "基本持平")
+                    macro_summary.append(f"{metric}{direction}")
+                answer.append(f"- {metric}：{'；'.join(parts)}")
+            if macro_summary:
+                answer.extend(["", "### 宏观补充判断", "相关宏观指标整体表现为：" + "、".join(macro_summary[:3]) + "。"])
+        if chunks:
+            answer.extend(["", "### 文档证据"])
+            for chunk in chunks[:3]:
+                meta = chunk.get("metadata") or {}
+                label = f"{meta.get('source', '未知来源')} 第{meta.get('page') or '?'}页"
+                snippet = re.sub(r"\s+", " ", chunk.get("text", "")).strip()[:180]
+                answer.append(f"- {label}：{snippet}")
+        answer.extend(["", "### 证据边界", "- 未调用大模型推理时，系统不会自动补全结论，只展示本地已命中的结构化指标与原文证据。"])
         if sources:
             answer.append("")
             answer.append("参考来源：")
@@ -359,15 +866,18 @@ def generate_answer(question, context_bundle, sources, client=None):
 
 
 def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chroma_path=DEFAULT_CHROMA_PATH, collection_name=DEFAULT_COLLECTION, client=None):
-    route_info = route_question(question, filters, client)
+    effective_filters = resolve_local_query_filters(question, filters, db_path=db_path) if not client else (filters or {})
+    route_info = route_question(question, effective_filters, client)
     sql = None
     sql_rows = []
+    macro_sql = None
+    macro_rows = []
     chunks = []
     warnings = []
 
     if route_info["route"] in {"sql", "hybrid"}:
         try:
-            sql = generate_sql(question, filters, client)
+            sql = generate_sql(question, effective_filters, client, db_path=db_path)
             sql_rows = execute_sql(sql, db_path)
         except (ValueError, sqlite3.Error) as exc:
             sql = None
@@ -377,15 +887,23 @@ def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chrom
                 route_info["route"] = "vector"
     if route_info["route"] in {"vector", "hybrid"}:
         try:
-            chunks = retrieve_chunks(question, filters, top_k, client, chroma_path, collection_name)
+            chunks = retrieve_chunks(question, effective_filters, top_k, client, chroma_path, collection_name)
         except Exception as exc:
             chunks = []
             warnings.append(f"向量检索不可用：{exc}")
             if route_info["route"] == "vector":
                 route_info["route"] = "sql"
+    if effective_filters.get("company_name") and is_macro_question(question):
+        macro_sql, macro_rows = run_macro_side_query(question, db_path=db_path)
+        if not macro_rows and macro_sql is None:
+            warnings.append("宏观侧检索未命中可用指标。")
 
-    sources = build_sources(sql_rows, chunks)
-    context_bundle = build_context_bundle(sql_rows, chunks)
+    all_sql_rows = [*sql_rows, *macro_rows]
+    sources = build_sources(all_sql_rows, chunks)
+    context_bundle = build_context_bundle(all_sql_rows, chunks)
+    context_bundle["sql_rows"] = sql_rows
+    context_bundle["macro_rows"] = macro_rows
+    context_bundle["chunks"] = chunks
     answer_markdown = generate_answer(question, context_bundle, sources, client)
     chart_spec = infer_chart_spec(sql_rows, route_info)
 
@@ -394,6 +912,8 @@ def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chrom
         "reason": route_info.get("reason"),
         "sql": sql,
         "sql_rows": sql_rows,
+        "macro_sql": macro_sql,
+        "macro_rows": macro_rows,
         "chunks": chunks,
         "sources": sources,
         "context": context_bundle["text"],

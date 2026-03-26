@@ -1,0 +1,29 @@
+{
+  "type": "whitebox",
+  "slug": "whitebox_demo",
+  "result": {
+    "answer_markdown": "## ST生物 2023 年经营诊断\n\n- 公司在 2023 年呈现出**经营质量稳中改善**的特征。\n- 从财务指标看，营收与经营现金流表现较稳，说明主营业务仍具备一定韧性。\n- 从原文切片看，管理层将增长动力归因于产品结构优化与核心产品放量，但也提示了渠道竞争和成本波动风险。\n\n**结论**：这是一家具备一定改善趋势、但仍需持续观察风险传导的企业。",
+    "sql": "SELECT company_name, report_year, indicator_name, value_num\nFROM fact_financial_report\nWHERE company_name = 'ST生物' AND report_year = 2023\nORDER BY indicator_name",
+    "chunks": [
+      {
+        "text": "2023 年公司持续推进产品结构优化，主营业务收入保持增长，管理层预计未来两年仍将以核心产品放量为主线。",
+        "metadata": {
+          "source": "ST生物-2023年度报告.md",
+          "page": 28,
+          "doc_type": "annual_report",
+          "company_name": "ST生物"
+        }
+      },
+      {
+        "text": "公司提示未来仍需关注渠道竞争加剧、原材料价格波动和研发投入回收周期拉长等经营风险。",
+        "metadata": {
+          "source": "ST生物-2023年度报告.md",
+          "page": 34,
+          "doc_type": "annual_report",
+          "company_name": "ST生物"
+        }
+      }
+    ],
+    "reasoning_markdown": "1. 先读取 SQL 结果中的关键财务指标，判断营收、利润和现金流趋势。\n2. 再结合 RAG 原文切片，识别管理层提到的增长动因与潜在风险。\n3. 最终输出兼顾结论、依据与风险提示，确保每一条判断都能追溯到结构化数据或原文片段。"
+  }
+}

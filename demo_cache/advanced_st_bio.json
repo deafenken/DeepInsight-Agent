@@ -1,0 +1,583 @@
+{
+  "type": "advanced",
+  "slug": "advanced_st_bio",
+  "question": "请分析该公司的股权结构、司法风险与创新能力",
+  "company_name": "ST生物",
+  "result": {
+    "answer_markdown": "问题：请分析该公司的股权结构、司法风险与创新能力\n\n股权穿透：{\"root_company\": \"ST生物\", \"nodes\": [{\"id\": \"company-1\", \"company_id\": 1, \"name\": \"ST生物\", \"type\": \"root\", \"level\": 0}, {\"id\": \"party-1\", \"company_id\": null, \"name\": \"ST生物\", \"type\": \"company\", \"level\": 0}, {\"id\": \"company-278\", \"company_id\": 278, \"name\": \"ST生物-模拟1级子公司1\", \"type\": \"company\", \"level\": 1}, {\"id\": \"company-279\", \"company_id\": 279, \"name\": \"ST生物-模拟1级子公司2\", \"type\": \"company\", \"level\": 1}, {\"id\": \"party-126\", \"company_id\": null, \"name\": \"ST生物-模拟1级子公司2\", \"type\": \"company\", \"level\": 1}, {\"id\": \"company-283\", \"company_id\": 283, \"name\": \"ST生物-模拟1级子公司2-模拟2级子公司2\", \"type\": \"company\", \"level\": 2}, {\"id\": \"party-124\", \"company_id\": null, \"name\": \"ST生物-模拟1级子公司1\", \"type\": \"company\", \"level\": 1}, {\"id\": \"company-280\", \"company_id\": 280, \"name\": \"ST生物-模拟1级子公司1-模拟2级子公司1\", \"type\": \"company\", \"level\": 2}, {\"id\": \"company-282\", \"company_id\": 282, \"name\": \"ST生物-模拟1级子公司2-模拟2级子公司1\", \"type\": \"company\", \"level\": 2}, {\"id\": \"company-281\", \"company_id\": 281, \"name\": \"ST生物-模拟1级子公司1-模拟2级子公司2\", \"type\": \"company\", \"level\": 2}], \"edges\": [{\"source\": \"party-1\", \"target\": \"company-278\", \"ratio\": 70.09, \"cumulative_ratio\": 70.09, \"depth\": 1}, {\"source\": \"party-1\", \"target\": \"company-279\", \"ratio\": 63.42, \"cumulative_ratio\": 63.42, \"depth\": 1}, {\"source\": \"party-126\", \"target\": \"company-283\", \"ratio\": 75.17, \"cumulative_ratio\": 47.6728, \"depth\": 2}, {\"source\": \"party-124\", \"target\": \"company-280\", \"ratio\": 66.08, \"cumulative_ratio\": 46.3155, \"depth\": 2}, {\"source\": \"party-126\", \"target\": \"company-282\", \"ratio\": 70.28, \"cumulative_ratio\": 44.5716, \"depth\": 2}, {\"source\": \"party-124\", \"target\": \"company-281\", \"ratio\": 47.51, \"cumulative_ratio\": 33.2998, \"depth\": 2}], \"summary\": {\"node_count\": 10, \"edge_count\": 6}}\n\n风险雷达：{\"company_name\": \"ST生物\", \"dimensions\": {\"高风险事件数\": 8, \"中风险事件数\": 9, \"低风险事件数\": 5, \"风险事件总数\": 22, \"涉案金额合计\": 594476000.0}, \"details\": [{\"company_name\": \"ST生物-模拟1级子公司2-模拟2级子公司1\", \"risk_type\": \"环保处罚\", \"filing_date\": \"2025-12-09\", \"amount_involved\": 13754400.0, \"severity_score\": 95, \"detail_text\": \"模拟风险事件：环保处罚，金额约 13754400.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1\", \"risk_type\": \"专利侵权\", \"filing_date\": \"2024-12-29\", \"amount_involved\": 33452300.0, \"severity_score\": 94, \"detail_text\": \"模拟风险事件：专利侵权，金额约 33452300.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司2\", \"risk_type\": \"劳动争议\", \"filing_date\": \"2023-05-03\", \"amount_involved\": 24923800.0, \"severity_score\": 93, \"detail_text\": \"模拟风险事件：劳动争议，金额约 24923800.00 元。\"}, {\"company_name\": \"ST生物\", \"risk_type\": \"买卖合同纠纷\", \"filing_date\": \"2025-07-20\", \"amount_involved\": 1930300.0, \"severity_score\": 91, \"detail_text\": \"模拟风险事件：买卖合同纠纷，金额约 1930300.00 元。\"}, {\"company_name\": \"ST生物\", \"risk_type\": \"失信被执行\", \"filing_date\": \"2023-12-07\", \"amount_involved\": 35808700.0, \"severity_score\": 91, \"detail_text\": \"模拟风险事件：失信被执行，金额约 35808700.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司2-模拟2级子公司2\", \"risk_type\": \"失信被执行\", \"filing_date\": \"2023-06-02\", \"amount_involved\": 10074400.0, \"severity_score\": 91, \"detail_text\": \"模拟风险事件：失信被执行，金额约 10074400.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1-模拟2级子公司1\", \"risk_type\": \"劳动争议\", \"filing_date\": \"2025-05-31\", \"amount_involved\": 47637800.0, \"severity_score\": 90, \"detail_text\": \"模拟风险事件：劳动争议，金额约 47637800.00 元。\"}, {\"company_name\": \"ST生物\", \"risk_type\": \"专利侵权\", \"filing_date\": \"2023-08-16\", \"amount_involved\": 31818800.0, \"severity_score\": 82, \"detail_text\": \"模拟风险事件：专利侵权，金额约 31818800.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1-模拟2级子公司1\", \"risk_type\": \"专利侵权\", \"filing_date\": \"2025-07-03\", \"amount_involved\": 26414400.0, \"severity_score\": 79, \"detail_text\": \"模拟风险事件：专利侵权，金额约 26414400.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1-模拟2级子公司1\", \"risk_type\": \"失信被执行\", \"filing_date\": \"2025-05-25\", \"amount_involved\": 44581600.0, \"severity_score\": 79, \"detail_text\": \"模拟风险事件：失信被执行，金额约 44581600.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1-模拟2级子公司2\", \"risk_type\": \"失信被执行\", \"filing_date\": \"2024-08-11\", \"amount_involved\": 2183600.0, \"severity_score\": 77, \"detail_text\": \"模拟风险事件：失信被执行，金额约 2183600.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司2\", \"risk_type\": \"买卖合同纠纷\", \"filing_date\": \"2026-02-21\", \"amount_involved\": 48284799.99999999, \"severity_score\": 70, \"detail_text\": \"模拟风险事件：买卖合同纠纷，金额约 48284800.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1-模拟2级子公司1\", \"risk_type\": \"环保处罚\", \"filing_date\": \"2023-11-04\", \"amount_involved\": 23040700.0, \"severity_score\": 70, \"detail_text\": \"模拟风险事件：环保处罚，金额约 23040700.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1-模拟2级子公司2\", \"risk_type\": \"专利侵权\", \"filing_date\": \"2023-09-01\", \"amount_involved\": 8719500.0, \"severity_score\": 67, \"detail_text\": \"模拟风险事件：专利侵权，金额约 8719500.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1-模拟2级子公司2\", \"risk_type\": \"劳动争议\", \"filing_date\": \"2024-12-01\", \"amount_involved\": 35728400.0, \"severity_score\": 63, \"detail_text\": \"模拟风险事件：劳动争议，金额约 35728400.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司2-模拟2级子公司2\", \"risk_type\": \"买卖合同纠纷\", \"filing_date\": \"2025-05-31\", \"amount_involved\": 36451600.0, \"severity_score\": 61, \"detail_text\": \"模拟风险事件：买卖合同纠纷，金额约 36451600.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司2-模拟2级子公司2\", \"risk_type\": \"专利侵权\", \"filing_date\": \"2024-05-18\", \"amount_involved\": 40421500.0, \"severity_score\": 58, \"detail_text\": \"模拟风险事件：专利侵权，金额约 40421500.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司1-模拟2级子公司2\", \"risk_type\": \"失信被执行\", \"filing_date\": \"2025-12-07\", \"amount_involved\": 37408500.0, \"severity_score\": 48, \"detail_text\": \"模拟风险事件：失信被执行，金额约 37408500.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司2-模拟2级子公司1\", \"risk_type\": \"专利侵权\", \"filing_date\": \"2024-03-01\", \"amount_involved\": 38997000.0, \"severity_score\": 48, \"detail_text\": \"模拟风险事件：专利侵权，金额约 38997000.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司2-模拟2级子公司1\", \"risk_type\": \"失信被执行\", \"filing_date\": \"2023-11-10\", \"amount_involved\": 32865800.0, \"severity_score\": 40, \"detail_text\": \"模拟风险事件：失信被执行，金额约 32865800.00 元。\"}, {\"company_name\": \"ST生物\", \"risk_type\": \"劳动争议\", \"filing_date\": \"2024-10-07\", \"amount_involved\": 9510800.0, \"severity_score\": 35, \"detail_text\": \"模拟风险事件：劳动争议，金额约 9510800.00 元。\"}, {\"company_name\": \"ST生物-模拟1级子公司2-模拟2级子公司1\", \"risk_type\": \"劳动争议\", \"filing_date\": \"2023-12-25\", \"amount_involved\": 10467300.0, \"severity_score\": 32, \"detail_text\": \"模拟风险事件：劳动争议，金额约 10467300.00 元。\"}]}\n\n创新指数：{\"company_name\": \"ST生物\", \"dimensions\": {\"专利总量\": 3, \"发明占比\": 0.0, \"近三年活跃度\": 2, \"平均专利评分\": 84.03, \"专利类型覆盖数\": 1}, \"details\": [{\"application_year\": 2023, \"patent_type\": \"软著\", \"patent_count\": 1, \"avg_score\": 79.11}, {\"application_year\": 2024, \"patent_type\": \"软著\", \"patent_count\": 1, \"avg_score\": 82.9}, {\"application_year\": 2026, \"patent_type\": \"软著\", \"patent_count\": 1, \"avg_score\": 90.07}]}",
+    "sources": [
+      {
+        "type": "tool",
+        "label": "股权穿透：ST生物",
+        "snippet": "{\"node_count\": 10, \"edge_count\": 6}"
+      },
+      {
+        "type": "tool",
+        "label": "风险雷达：ST生物",
+        "snippet": "{\"高风险事件数\": 8, \"中风险事件数\": 9, \"低风险事件数\": 5, \"风险事件总数\": 22, \"涉案金额合计\": 594476000.0}"
+      },
+      {
+        "type": "tool",
+        "label": "创新指数：ST生物",
+        "snippet": "{\"专利总量\": 3, \"发明占比\": 0.0, \"近三年活跃度\": 2, \"平均专利评分\": 84.03, \"专利类型覆盖数\": 1}"
+      }
+    ],
+    "viz_blocks": [
+      {
+        "type": "graph",
+        "title": "ST生物 股权关系图谱",
+        "option": {
+          "tooltip": {
+            "formatter": "function(params){ if(params.dataType==='edge'){ return params.data.source + ' → ' + params.data.target + '<br/>持股比例：' + params.data.value + '%'; } return params.data.valueLabel || params.name; }"
+          },
+          "legend": [
+            {
+              "data": [
+                "核心公司",
+                "公司",
+                "个人"
+              ]
+            }
+          ],
+          "series": [
+            {
+              "type": "graph",
+              "layout": "force",
+              "roam": true,
+              "label": {
+                "show": true,
+                "formatter": "{b}"
+              },
+              "categories": [
+                {
+                  "name": "核心公司"
+                },
+                {
+                  "name": "公司"
+                },
+                {
+                  "name": "个人"
+                }
+              ],
+              "data": [
+                {
+                  "id": "company-1",
+                  "name": "ST生物",
+                  "valueLabel": "ST生物",
+                  "value": 0,
+                  "category": 0,
+                  "symbolSize": 38
+                },
+                {
+                  "id": "party-1",
+                  "name": "ST生物",
+                  "valueLabel": "ST生物",
+                  "value": 0,
+                  "category": 1,
+                  "symbolSize": 26
+                },
+                {
+                  "id": "company-278",
+                  "name": "ST生物-模拟1级子公司1",
+                  "valueLabel": "ST生物-模拟1级子公司1",
+                  "value": 1,
+                  "category": 1,
+                  "symbolSize": 26
+                },
+                {
+                  "id": "company-279",
+                  "name": "ST生物-模拟1级子公司2",
+                  "valueLabel": "ST生物-模拟1级子公司2",
+                  "value": 1,
+                  "category": 1,
+                  "symbolSize": 26
+                },
+                {
+                  "id": "party-126",
+                  "name": "ST生物-模拟1级子公司2",
+                  "valueLabel": "ST生物-模拟1级子公司2",
+                  "value": 1,
+                  "category": 1,
+                  "symbolSize": 26
+                },
+                {
+                  "id": "company-283",
+                  "name": "ST生物-模拟1级子公司2-模拟2级子公司2",
+                  "valueLabel": "ST生物-模拟1级子公司2-模拟2级子公司2",
+                  "value": 2,
+                  "category": 1,
+                  "symbolSize": 26
+                },
+                {
+                  "id": "party-124",
+                  "name": "ST生物-模拟1级子公司1",
+                  "valueLabel": "ST生物-模拟1级子公司1",
+                  "value": 1,
+                  "category": 1,
+                  "symbolSize": 26
+                },
+                {
+                  "id": "company-280",
+                  "name": "ST生物-模拟1级子公司1-模拟2级子公司1",
+                  "valueLabel": "ST生物-模拟1级子公司1-模拟2级子公司1",
+                  "value": 2,
+                  "category": 1,
+                  "symbolSize": 26
+                },
+                {
+                  "id": "company-282",
+                  "name": "ST生物-模拟1级子公司2-模拟2级子公司1",
+                  "valueLabel": "ST生物-模拟1级子公司2-模拟2级子公司1",
+                  "value": 2,
+                  "category": 1,
+                  "symbolSize": 26
+                },
+                {
+                  "id": "company-281",
+                  "name": "ST生物-模拟1级子公司1-模拟2级子公司2",
+                  "valueLabel": "ST生物-模拟1级子公司1-模拟2级子公司2",
+                  "value": 2,
+                  "category": 1,
+                  "symbolSize": 26
+                }
+              ],
+              "links": [
+                {
+                  "source": "party-1",
+                  "target": "company-278",
+                  "value": 70.09
+                },
+                {
+                  "source": "party-1",
+                  "target": "company-279",
+                  "value": 63.42
+                },
+                {
+                  "source": "party-126",
+                  "target": "company-283",
+                  "value": 75.17
+                },
+                {
+                  "source": "party-124",
+                  "target": "company-280",
+                  "value": 66.08
+                },
+                {
+                  "source": "party-126",
+                  "target": "company-282",
+                  "value": 70.28
+                },
+                {
+                  "source": "party-124",
+                  "target": "company-281",
+                  "value": 47.51
+                }
+              ],
+              "force": {
+                "repulsion": 260,
+                "edgeLength": [
+                  90,
+                  180
+                ]
+              },
+              "lineStyle": {
+                "curveness": 0.1
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "radar",
+        "title": "ST生物 风险与创新雷达图",
+        "option": {
+          "tooltip": {},
+          "radar": {
+            "indicator": [
+              {
+                "name": "财务健康度",
+                "max": 100
+              },
+              {
+                "name": "创新能力",
+                "max": 100
+              },
+              {
+                "name": "市场占有率",
+                "max": 100
+              },
+              {
+                "name": "合规风险",
+                "max": 100
+              },
+              {
+                "name": "供应链稳定性",
+                "max": 100
+              }
+            ]
+          },
+          "series": [
+            {
+              "type": "radar",
+              "data": [
+                {
+                  "value": [
+                    70,
+                    84,
+                    60,
+                    10,
+                    65
+                  ],
+                  "name": "ST生物"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "tool_results": {
+      "equity": {
+        "root_company": "ST生物",
+        "nodes": [
+          {
+            "id": "company-1",
+            "company_id": 1,
+            "name": "ST生物",
+            "type": "root",
+            "level": 0
+          },
+          {
+            "id": "party-1",
+            "company_id": null,
+            "name": "ST生物",
+            "type": "company",
+            "level": 0
+          },
+          {
+            "id": "company-278",
+            "company_id": 278,
+            "name": "ST生物-模拟1级子公司1",
+            "type": "company",
+            "level": 1
+          },
+          {
+            "id": "company-279",
+            "company_id": 279,
+            "name": "ST生物-模拟1级子公司2",
+            "type": "company",
+            "level": 1
+          },
+          {
+            "id": "party-126",
+            "company_id": null,
+            "name": "ST生物-模拟1级子公司2",
+            "type": "company",
+            "level": 1
+          },
+          {
+            "id": "company-283",
+            "company_id": 283,
+            "name": "ST生物-模拟1级子公司2-模拟2级子公司2",
+            "type": "company",
+            "level": 2
+          },
+          {
+            "id": "party-124",
+            "company_id": null,
+            "name": "ST生物-模拟1级子公司1",
+            "type": "company",
+            "level": 1
+          },
+          {
+            "id": "company-280",
+            "company_id": 280,
+            "name": "ST生物-模拟1级子公司1-模拟2级子公司1",
+            "type": "company",
+            "level": 2
+          },
+          {
+            "id": "company-282",
+            "company_id": 282,
+            "name": "ST生物-模拟1级子公司2-模拟2级子公司1",
+            "type": "company",
+            "level": 2
+          },
+          {
+            "id": "company-281",
+            "company_id": 281,
+            "name": "ST生物-模拟1级子公司1-模拟2级子公司2",
+            "type": "company",
+            "level": 2
+          }
+        ],
+        "edges": [
+          {
+            "source": "party-1",
+            "target": "company-278",
+            "ratio": 70.09,
+            "cumulative_ratio": 70.09,
+            "depth": 1
+          },
+          {
+            "source": "party-1",
+            "target": "company-279",
+            "ratio": 63.42,
+            "cumulative_ratio": 63.42,
+            "depth": 1
+          },
+          {
+            "source": "party-126",
+            "target": "company-283",
+            "ratio": 75.17,
+            "cumulative_ratio": 47.6728,
+            "depth": 2
+          },
+          {
+            "source": "party-124",
+            "target": "company-280",
+            "ratio": 66.08,
+            "cumulative_ratio": 46.3155,
+            "depth": 2
+          },
+          {
+            "source": "party-126",
+            "target": "company-282",
+            "ratio": 70.28,
+            "cumulative_ratio": 44.5716,
+            "depth": 2
+          },
+          {
+            "source": "party-124",
+            "target": "company-281",
+            "ratio": 47.51,
+            "cumulative_ratio": 33.2998,
+            "depth": 2
+          }
+        ],
+        "summary": {
+          "node_count": 10,
+          "edge_count": 6
+        }
+      },
+      "risk": {
+        "company_name": "ST生物",
+        "dimensions": {
+          "高风险事件数": 8,
+          "中风险事件数": 9,
+          "低风险事件数": 5,
+          "风险事件总数": 22,
+          "涉案金额合计": 594476000.0
+        },
+        "details": [
+          {
+            "company_name": "ST生物-模拟1级子公司2-模拟2级子公司1",
+            "risk_type": "环保处罚",
+            "filing_date": "2025-12-09",
+            "amount_involved": 13754400.0,
+            "severity_score": 95,
+            "detail_text": "模拟风险事件：环保处罚，金额约 13754400.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1",
+            "risk_type": "专利侵权",
+            "filing_date": "2024-12-29",
+            "amount_involved": 33452300.0,
+            "severity_score": 94,
+            "detail_text": "模拟风险事件：专利侵权，金额约 33452300.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司2",
+            "risk_type": "劳动争议",
+            "filing_date": "2023-05-03",
+            "amount_involved": 24923800.0,
+            "severity_score": 93,
+            "detail_text": "模拟风险事件：劳动争议，金额约 24923800.00 元。"
+          },
+          {
+            "company_name": "ST生物",
+            "risk_type": "买卖合同纠纷",
+            "filing_date": "2025-07-20",
+            "amount_involved": 1930300.0,
+            "severity_score": 91,
+            "detail_text": "模拟风险事件：买卖合同纠纷，金额约 1930300.00 元。"
+          },
+          {
+            "company_name": "ST生物",
+            "risk_type": "失信被执行",
+            "filing_date": "2023-12-07",
+            "amount_involved": 35808700.0,
+            "severity_score": 91,
+            "detail_text": "模拟风险事件：失信被执行，金额约 35808700.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司2-模拟2级子公司2",
+            "risk_type": "失信被执行",
+            "filing_date": "2023-06-02",
+            "amount_involved": 10074400.0,
+            "severity_score": 91,
+            "detail_text": "模拟风险事件：失信被执行，金额约 10074400.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1-模拟2级子公司1",
+            "risk_type": "劳动争议",
+            "filing_date": "2025-05-31",
+            "amount_involved": 47637800.0,
+            "severity_score": 90,
+            "detail_text": "模拟风险事件：劳动争议，金额约 47637800.00 元。"
+          },
+          {
+            "company_name": "ST生物",
+            "risk_type": "专利侵权",
+            "filing_date": "2023-08-16",
+            "amount_involved": 31818800.0,
+            "severity_score": 82,
+            "detail_text": "模拟风险事件：专利侵权，金额约 31818800.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1-模拟2级子公司1",
+            "risk_type": "专利侵权",
+            "filing_date": "2025-07-03",
+            "amount_involved": 26414400.0,
+            "severity_score": 79,
+            "detail_text": "模拟风险事件：专利侵权，金额约 26414400.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1-模拟2级子公司1",
+            "risk_type": "失信被执行",
+            "filing_date": "2025-05-25",
+            "amount_involved": 44581600.0,
+            "severity_score": 79,
+            "detail_text": "模拟风险事件：失信被执行，金额约 44581600.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1-模拟2级子公司2",
+            "risk_type": "失信被执行",
+            "filing_date": "2024-08-11",
+            "amount_involved": 2183600.0,
+            "severity_score": 77,
+            "detail_text": "模拟风险事件：失信被执行，金额约 2183600.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司2",
+            "risk_type": "买卖合同纠纷",
+            "filing_date": "2026-02-21",
+            "amount_involved": 48284799.99999999,
+            "severity_score": 70,
+            "detail_text": "模拟风险事件：买卖合同纠纷，金额约 48284800.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1-模拟2级子公司1",
+            "risk_type": "环保处罚",
+            "filing_date": "2023-11-04",
+            "amount_involved": 23040700.0,
+            "severity_score": 70,
+            "detail_text": "模拟风险事件：环保处罚，金额约 23040700.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1-模拟2级子公司2",
+            "risk_type": "专利侵权",
+            "filing_date": "2023-09-01",
+            "amount_involved": 8719500.0,
+            "severity_score": 67,
+            "detail_text": "模拟风险事件：专利侵权，金额约 8719500.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1-模拟2级子公司2",
+            "risk_type": "劳动争议",
+            "filing_date": "2024-12-01",
+            "amount_involved": 35728400.0,
+            "severity_score": 63,
+            "detail_text": "模拟风险事件：劳动争议，金额约 35728400.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司2-模拟2级子公司2",
+            "risk_type": "买卖合同纠纷",
+            "filing_date": "2025-05-31",
+            "amount_involved": 36451600.0,
+            "severity_score": 61,
+            "detail_text": "模拟风险事件：买卖合同纠纷，金额约 36451600.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司2-模拟2级子公司2",
+            "risk_type": "专利侵权",
+            "filing_date": "2024-05-18",
+            "amount_involved": 40421500.0,
+            "severity_score": 58,
+            "detail_text": "模拟风险事件：专利侵权，金额约 40421500.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司1-模拟2级子公司2",
+            "risk_type": "失信被执行",
+            "filing_date": "2025-12-07",
+            "amount_involved": 37408500.0,
+            "severity_score": 48,
+            "detail_text": "模拟风险事件：失信被执行，金额约 37408500.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司2-模拟2级子公司1",
+            "risk_type": "专利侵权",
+            "filing_date": "2024-03-01",
+            "amount_involved": 38997000.0,
+            "severity_score": 48,
+            "detail_text": "模拟风险事件：专利侵权，金额约 38997000.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司2-模拟2级子公司1",
+            "risk_type": "失信被执行",
+            "filing_date": "2023-11-10",
+            "amount_involved": 32865800.0,
+            "severity_score": 40,
+            "detail_text": "模拟风险事件：失信被执行，金额约 32865800.00 元。"
+          },
+          {
+            "company_name": "ST生物",
+            "risk_type": "劳动争议",
+            "filing_date": "2024-10-07",
+            "amount_involved": 9510800.0,
+            "severity_score": 35,
+            "detail_text": "模拟风险事件：劳动争议，金额约 9510800.00 元。"
+          },
+          {
+            "company_name": "ST生物-模拟1级子公司2-模拟2级子公司1",
+            "risk_type": "劳动争议",
+            "filing_date": "2023-12-25",
+            "amount_involved": 10467300.0,
+            "severity_score": 32,
+            "detail_text": "模拟风险事件：劳动争议，金额约 10467300.00 元。"
+          }
+        ]
+      },
+      "innovation": {
+        "company_name": "ST生物",
+        "dimensions": {
+          "专利总量": 3,
+          "发明占比": 0.0,
+          "近三年活跃度": 2,
+          "平均专利评分": 84.03,
+          "专利类型覆盖数": 1
+        },
+        "details": [
+          {
+            "application_year": 2023,
+            "patent_type": "软著",
+            "patent_count": 1,
+            "avg_score": 79.11
+          },
+          {
+            "application_year": 2024,
+            "patent_type": "软著",
+            "patent_count": 1,
+            "avg_score": 82.9
+          },
+          {
+            "application_year": 2026,
+            "patent_type": "软著",
+            "patent_count": 1,
+            "avg_score": 90.07
+          }
+        ]
+      }
+    }
+  }
+}

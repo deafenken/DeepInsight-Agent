@@ -215,7 +215,9 @@ def build_viz_blocks(equity_data, risk_data, innovation_data):
     for node in equity_data["nodes"]:
         graph_nodes.append(
             {
+                "id": node["id"],
                 "name": node["name"],
+                "valueLabel": node["name"],
                 "value": node["level"],
                 "category": categories.get(node["type"], 1),
                 "symbolSize": 38 if node["type"] == "root" else 26,
@@ -223,8 +225,8 @@ def build_viz_blocks(equity_data, risk_data, innovation_data):
         )
     graph_links = [
         {
-            "source": next(item["name"] for item in equity_data["nodes"] if item["id"] == edge["source"]),
-            "target": next(item["name"] for item in equity_data["nodes"] if item["id"] == edge["target"]),
+            "source": edge["source"],
+            "target": edge["target"],
             "value": edge["ratio"],
         }
         for edge in equity_data["edges"]
@@ -235,14 +237,16 @@ def build_viz_blocks(equity_data, risk_data, innovation_data):
             "type": "graph",
             "title": f"{equity_data['root_company']} 股权关系图谱",
             "option": {
-                "tooltip": {"formatter": "{b}"},
+                "tooltip": {
+                    "formatter": "function(params){ if(params.dataType==='edge'){ return params.data.source + ' → ' + params.data.target + '<br/>持股比例：' + params.data.value + '%'; } return params.data.valueLabel || params.name; }"
+                },
                 "legend": [{"data": ["核心公司", "公司", "个人"]}],
                 "series": [
                     {
                         "type": "graph",
                         "layout": "force",
                         "roam": True,
-                        "label": {"show": True},
+                        "label": {"show": True, "formatter": "{b}"},
                         "categories": [{"name": "核心公司"}, {"name": "公司"}, {"name": "个人"}],
                         "data": graph_nodes,
                         "links": graph_links,

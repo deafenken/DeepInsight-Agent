@@ -1,0 +1,1523 @@
+{
+  "type": "chat",
+  "slug": "company_compare",
+  "question": "对比华兰生物和乐普医疗2023年的经营差异",
+  "filters": {},
+  "top_k": 5,
+  "result": {
+    "route": "hybrid",
+    "reason": "rule_based",
+    "sql": "SELECT c.company_name, d.report_year, i.indicator_name, f.period_label, f.value_role, f.value_num, f.unit, f.source_page\n            FROM fact_financial_report f\n            JOIN dim_document d ON f.document_id = d.document_id\n            JOIN dim_company c ON d.company_id = c.company_id\n            JOIN dict_financial_indicator i ON f.indicator_id = i.indicator_id\n            WHERE d.is_latest = 1 AND c.company_name IN ('乐普医疗', '华兰生物') AND d.report_year = 2023\n            ORDER BY c.company_name, i.indicator_name, f.value_role DESC, f.period_label DESC",
+    "sql_rows": [
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "净资产收益率",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 17.6,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "净资产收益率",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 8.23,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 2202809.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 364563051.5,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1258200337.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 596924222.49,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净资产",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 15146202.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1597610196.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 2142486.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 342444863.26,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1123116336.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 562429846.3,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 24484033.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 275203779.61,
+        "unit": null,
+        "source_page": 213
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 2502233148.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 74
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 344834413.2,
+        "unit": null,
+        "source_page": 213
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "毛利率",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1.0,
+        "unit": null,
+        "source_page": 113
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 957062067.79,
+        "unit": "%",
+        "source_page": 36
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 1283678170.61,
+        "unit": null,
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 326616102.82,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 25.44,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 14.54,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 957062067.79,
+        "unit": null,
+        "source_page": 120
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 149048425.47,
+        "unit": null,
+        "source_page": 121
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 58280293.25,
+        "unit": null,
+        "source_page": 194
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 1946464557.51,
+        "unit": "元",
+        "source_page": 197
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 87660939.0,
+        "unit": null,
+        "source_page": 201
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 957062067.79,
+        "unit": null,
+        "source_page": 201
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 326616102.82,
+        "unit": null,
+        "source_page": 201
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 879418426.88,
+        "unit": "%",
+        "source_page": 36
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1241657991.24,
+        "unit": null,
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 362239564.36,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 29.17,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 28.03,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 879418426.88,
+        "unit": null,
+        "source_page": 120
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 171152763.55,
+        "unit": null,
+        "source_page": 121
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 38932787.09,
+        "unit": null,
+        "source_page": 194
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1492855906.1,
+        "unit": "元",
+        "source_page": 197
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 58529230.59,
+        "unit": null,
+        "source_page": 201
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 879418426.88,
+        "unit": null,
+        "source_page": 201
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 362239564.36,
+        "unit": null,
+        "source_page": 201
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 2790709.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 275905028.19,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 2790709307.02,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 2790709307.02,
+        "unit": null,
+        "source_page": 123
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 544645015.1,
+        "unit": null,
+        "source_page": 124
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 2790709307.02,
+        "unit": null,
+        "source_page": 199
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 990359814.3,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": -134203435.01,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 990359814.31,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 990359814.31,
+        "unit": null,
+        "source_page": 123
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 452515807.02,
+        "unit": null,
+        "source_page": 124
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 990359814.31,
+        "unit": null,
+        "source_page": 199
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 10609442.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 1864255318.73,
+        "unit": "元",
+        "source_page": 7
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 33
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 12.1,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 10609442080.61,
+        "unit": "元",
+        "source_page": 120
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 10609442080.61,
+        "unit": "元",
+        "source_page": 120
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 1518250388.99,
+        "unit": "元",
+        "source_page": 121
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 225424683.0,
+        "unit": null,
+        "source_page": 210
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 7979899319.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 2437202386.92,
+        "unit": "元",
+        "source_page": 7
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 7979899319.74,
+        "unit": "%",
+        "source_page": 33
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 15.56,
+        "unit": "%",
+        "source_page": 40
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 74
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1.0,
+        "unit": null,
+        "source_page": 113
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 4.0,
+        "unit": null,
+        "source_page": 114
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 7979899319.74,
+        "unit": "元",
+        "source_page": 120
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 7979899319.74,
+        "unit": "元",
+        "source_page": 120
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1576981486.92,
+        "unit": "元",
+        "source_page": 121
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 10552510099.4,
+        "unit": "元",
+        "source_page": 193
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 25432047.1,
+        "unit": null,
+        "source_page": 210
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "资产负债率",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 33.14,
+        "unit": "万元",
+        "source_page": 110
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "资产负债率",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 0.0,
+        "unit": "%",
+        "source_page": 91
+      },
+      {
+        "company_name": "乐普医疗",
+        "report_year": 2023,
+        "indicator_name": "资产负债率",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 30.07,
+        "unit": "万元",
+        "source_page": 110
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "净资产收益率",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 11.11,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "净资产收益率",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 13.7,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 107626528.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 174976301.01,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 148157884.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 351676291.89,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 893520265.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 121895845.08,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 126678795.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 275642949.05,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 147409661.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 161057832.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 39
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 314700635.01,
+        "unit": "%",
+        "source_page": 17
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 316337540.36,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 1636905.35,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 0.52,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 314700635.01,
+        "unit": null,
+        "source_page": 70
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 66323608.93,
+        "unit": null,
+        "source_page": 72
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 314700635.01,
+        "unit": null,
+        "source_page": 154
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 1636905.35,
+        "unit": null,
+        "source_page": 154
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 280843979.31,
+        "unit": "%",
+        "source_page": 17
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 282948774.16,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 2104794.85,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 0.74,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 280843979.31,
+        "unit": null,
+        "source_page": 70
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 73447149.67,
+        "unit": null,
+        "source_page": 72
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": -41447392.83,
+        "unit": null,
+        "source_page": 150
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 280843979.31,
+        "unit": null,
+        "source_page": 154
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 2104794.85,
+        "unit": null,
+        "source_page": 154
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 957311907.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 398155925.52,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 957311907.1,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 957311907.1,
+        "unit": null,
+        "source_page": 74
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 520427738.1,
+        "unit": null,
+        "source_page": 75
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 957311907.1,
+        "unit": null,
+        "source_page": 152
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 134583878.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 369227788.51,
+        "unit": null,
+        "source_page": 7
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1345838781.04,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1345838781.04,
+        "unit": null,
+        "source_page": 74
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 399958575.57,
+        "unit": null,
+        "source_page": 75
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1345838781.04,
+        "unit": null,
+        "source_page": 152
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 451697940.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 704578784.34,
+        "unit": "元",
+        "source_page": 7
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 14
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 7.0,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 4516979408.06,
+        "unit": "元",
+        "source_page": 70
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 4516979408.06,
+        "unit": "元",
+        "source_page": 70
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 1539047674.65,
+        "unit": "元",
+        "source_page": 72
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 14518904.32,
+        "unit": null,
+        "source_page": 160
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 534187255.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 880663132.35,
+        "unit": "元",
+        "source_page": 7
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 5341872557.4,
+        "unit": "%",
+        "source_page": 14
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 5.3,
+        "unit": "%",
+        "source_page": 19
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 39
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 5341872557.46,
+        "unit": "元",
+        "source_page": 70
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 5341872557.46,
+        "unit": "元",
+        "source_page": 70
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1686078667.41,
+        "unit": "元",
+        "source_page": 72
+      },
+      {
+        "company_name": "华兰生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 8276311.39,
+        "unit": null,
+        "source_page": 160
+      }
+    ],
+    "macro_sql": null,
+    "macro_rows": [],
+    "chunks": [
+      {
+        "text": "- (1)经营活动产生的现金流量净流入99,035.98 万元，较上年同期减少180,034.95 万元，降幅64.51%，主要系营收规模缩 小导致销售回款同比下降；但上年末的应急产品生产等所需的额外人工劳务费、采购原材物料的款项按结算周期于本报告 期集中支付，现金支出的降幅滞后。\n\n(2)筹资活动产生的现金流量净流出29,291.78 万元，较上年同期净流入41,274.86 万元净流入降幅170.97%，主要系借款 净流入同比增112,893.78 万元，子公司吸收投资较同期减少28,411.12 万，因回购库存股支付较同期减少17,066.62 万 元，此外上年同期公司成功发行GDR 收到现金153,299.66 万元，本报告期无此流入事项。\n\n报告期内公司经营活动产生的现金净流量与本年度净利润存在重大差异的原因说明\n\n 适用 □不适用\n\n报告期内公司经营活动产生的现金净流量低于净利润主要是由于上年末的应急产品生产等采购原材物料的款项按结算周期 于本报告期集中支付所致。",
+        "metadata": {
+          "page": 41,
+          "industry_name": "",
+          "chunk_index": 153,
+          "company_name": "乐普医疗",
+          "file_path": "/Volumes/ORICO/code1/reports_md/乐普医疗-2023年度报告.md",
+          "stock_code": "",
+          "source": "乐普医疗-2023年度报告.md",
+          "report_year": 2023,
+          "doc_type": "annual_report",
+          "document_id": 108
+        },
+        "distance": 1.7891814708709717
+      },
+      {
+        "text": "## 5、报告期末公司的负债情况、资信变化情况以及在未来年度还债的现金安排\n\n公司总资产 2,507,291.74 万元，较期初增长 2.42% ；归属于上市公司股东的净资产 1,597,610.20 万元，较期初增长 5.47% 。\n\n2022 年 6 月 14 日，中诚信国际信用评级有限责任公司对公司及公司存续期内相关债项 进行了跟踪评级。经审定：维持公司的主体信用等级为 AA + ，评级展望为稳定；维持 “ 乐普 转 2” 的信用等级为 AA + 。\n\n公司本次发行的可转债“乐普转 2 ”的期限为自发行之日起 5 年，即 2021 年 3 月 30 日 至 2026 年 3 月 29 日；还本付息方式采用每年付息一次的付息方式，到期归还本金和支付最 后一年利息；每年利率分别为第一年 0.30% 、第二年 0.50% 、第三年 1.00% 、第四年 1.50% 、 第五年 1.80% 。",
+        "metadata": {
+          "doc_type": "annual_report",
+          "industry_name": "",
+          "stock_code": "",
+          "company_name": "乐普医疗",
+          "source": "乐普医疗-2023年度报告.md",
+          "chunk_index": 387,
+          "document_id": 108,
+          "file_path": "/Volumes/ORICO/code1/reports_md/乐普医疗-2023年度报告.md",
+          "page": 110,
+          "report_year": 2023
+        },
+        "distance": 1.8361536264419556
+      }
+    ],
+    "sources": [
+      {
+        "type": "sql",
+        "label": "乐普医疗 / 2023年 / 第6页",
+        "snippet": "{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"净资产收益率\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 17.6, \"unit\": \"%\", \"source_page\": 6}"
+      },
+      {
+        "type": "sql",
+        "label": "华兰生物 / 2023年 / 第6页",
+        "snippet": "{\"company_name\": \"华兰生物\", \"report_year\": 2023, \"indicator_name\": \"净资产收益率\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 11.11, \"unit\": \"%\", \"source_page\": 6}"
+      },
+      {
+        "type": "sql",
+        "label": "乐普医疗 / 2023年 / 第7页",
+        "snippet": "{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 364563051.5, \"unit\": null, \"source_page\": 7}"
+      },
+      {
+        "type": "sql",
+        "label": "华兰生物 / 2023年 / 第7页",
+        "snippet": "{\"company_name\": \"华兰生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 174976301.01, \"unit\": null, \"source_page\": 7}"
+      },
+      {
+        "type": "sql",
+        "label": "华兰生物 / 2023年 / 第39页",
+        "snippet": "{\"company_name\": \"华兰生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 100.0, \"unit\": \"%\", \"source_page\": 39}"
+      },
+      {
+        "type": "sql",
+        "label": "乐普医疗 / 2023年 / 第213页",
+        "snippet": "{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 275203779.61, \"unit\": null, \"source_page\": 213}"
+      },
+      {
+        "type": "sql",
+        "label": "华兰生物 / 2023年 / 第17页",
+        "snippet": "{\"company_name\": \"华兰生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 314700635.01, \"unit\": \"%\", \"source_page\": 17}"
+      },
+      {
+        "type": "sql",
+        "label": "华兰生物 / 2023年 / 第19页",
+        "snippet": "{\"company_name\": \"华兰生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 316337540.36, \"unit\": \"%\", \"source_page\": 19}"
+      },
+      {
+        "type": "sql",
+        "label": "乐普医疗 / 2023年 / 第74页",
+        "snippet": "{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 100.0, \"unit\": \"%\", \"source_page\": 74}"
+      },
+      {
+        "type": "sql",
+        "label": "乐普医疗 / 2023年 / 第113页",
+        "snippet": "{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"毛利率\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 1.0, \"unit\": null, \"source_page\": 113}"
+      },
+      {
+        "type": "sql",
+        "label": "华兰生物 / 2023年 / 第70页",
+        "snippet": "{\"company_name\": \"华兰生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 314700635.01, \"unit\": null, \"source_page\": 70}"
+      },
+      {
+        "type": "sql",
+        "label": "乐普医疗 / 2023年 / 第36页",
+        "snippet": "{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 957062067.79, \"unit\": \"%\", \"source_page\": 36}"
+      },
+      {
+        "type": "sql",
+        "label": "华兰生物 / 2023年 / 第72页",
+        "snippet": "{\"company_name\": \"华兰生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 66323608.93, \"unit\": null, \"source_page\": 72}"
+      },
+      {
+        "type": "sql",
+        "label": "乐普医疗 / 2023年 / 第40页",
+        "snippet": "{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 1283678170.61, \"unit\": null, \"source_page\": 40}"
+      },
+      {
+        "type": "sql",
+        "label": "华兰生物 / 2023年 / 第154页",
+        "snippet": "{\"company_name\": \"华兰生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 314700635.01, \"unit\": null, \"source_page\": 154}"
+      },
+      {
+        "type": "sql",
+        "label": "乐普医疗 / 2023年 / 第120页",
+        "snippet": "{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 957062067.79, \"unit\": null, \"source_page\": 120}"
+      }
+    ],
+    "context": "[SQL结果]\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"净资产收益率\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 17.6, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"净资产收益率\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 8.23, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 2202809.0, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 364563051.5, \"unit\": null, \"source_page\": 7}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 1258200337.0, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 596924222.49, \"unit\": null, \"source_page\": 7}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 15146202.0, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 1597610196.0, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的扣除非经常性损益的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 2142486.0, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的扣除非经常性损益的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 342444863.26, \"unit\": null, \"source_page\": 7}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的扣除非经常性损益的净利润\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 1123116336.0, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的扣除非经常性损益的净利润\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 562429846.3, \"unit\": null, \"source_page\": 7}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 24484033.0, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 275203779.61, \"unit\": null, \"source_page\": 213}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 2502233148.0, \"unit\": \"%\", \"source_page\": 6}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 100.0, \"unit\": \"%\", \"source_page\": 74}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 344834413.2, \"unit\": null, \"source_page\": 213}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"毛利率\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 1.0, \"unit\": null, \"source_page\": 113}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 957062067.79, \"unit\": \"%\", \"source_page\": 36}\n{\"company_name\": \"乐普医疗\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 1283678170.61, \"unit\": null, \"source_page\": 40}\n\n[向量检索]\n[1] 来源：乐普医疗-2023年度报告.md 第41页\n- (1)经营活动产生的现金流量净流入99,035.98 万元，较上年同期减少180,034.95 万元，降幅64.51%，主要系营收规模缩 小导致销售回款同比下降；但上年末的应急产品生产等所需的额外人工劳务费、采购原材物料的款项按结算周期于本报告 期集中支付，现金支出的降幅滞后。\n\n(2)筹资活动产生的现金流量净流出29,291.78 万元，较上年同期净流入41,274.86 万元净流入降幅170.97%，主要系借款 净流入同比增112,893.78 万元，子公司吸收投资较同期减少28,411.12 万，因回购库存股支付较同期减少17,066.62 万 元，此外上年同期公司成功发行GDR 收到现金153,299.66 万元，本报告期无此流入事项。\n\n报告期内公司经营活动产生的现金净流量与本年度净利润存在重大差异的原因说明\n\n 适用 □不适用\n\n报告期内公司经营活动产生的现金净流量低于净利润主要是由于上年末的应急产品生产等采购原材物料的款项按结算周期 于本报告期集中支付所致。\n\n[2] 来源：乐普医疗-2023年度报告.md 第110页\n## 5、报告期末公司的负债情况、资信变化情况以及在未来年度还债的现金安排\n\n公司总资产 2,507,291.74 万元，较期初增长 2.42% ；归属于上市公司股东的净资产 1,597,610.20 万元，较期初增长 5.47% 。\n\n2022 年 6 月 14 日，中诚信国际信用评级有限责任公司对公司及公司存续期内相关债项 进行了跟踪评级。经审定：维持公司的主体信用等级为 AA + ，评级展望为稳定；维持 “ 乐普 转 2” 的信用等级为 AA + 。\n\n公司本次发行的可转债“乐普转 2 ”的期限为自发行之日起 5 年，即 2021 年 3 月 30 日 至 2026 年 3 月 29 日；还本付息方式采用每年付息一次的付息方式，到期归还本金和支付最 后一年利息；每年利率分别为第一年 0.30% 、第二年 0.50% 、第三年 1.00% 、第四年 1.50% 、 第五年 1.80% 。",
+    "answer_markdown": "## 本地检索回答\n\n**问题**：对比华兰生物和乐普医疗2023年的经营差异\n\n已基于本地 SQLite + Chroma 完成检索整合；当前为无大模型降级回答，结论以证据摘录为主。\n\n### 结构化财务线索\n\n### 经营标签\n`利润修复` | `现金流为正`\n\n### 对比卡片\n- 营业收入：乐普医疗（7979899319.0）高于华兰生物（534187255.0）\n- 归属于上市公司股东的净利润：乐普医疗（1258200337.0）高于华兰生物（148157884.0）\n- 经营活动产生的现金流量净额：乐普医疗（990359814.3）高于华兰生物（134583878.0）\n- 总资产：乐普医疗（2502233148.0）高于华兰生物（161057832.0）\n\n### 公司要点\n- 乐普医疗：营业收入上升、归属于上市公司股东的净利润上升、经营活动产生的现金流量净额上升\n- 华兰生物：营业收入上升、归属于上市公司股东的净利润上升、经营活动产生的现金流量净额下降\n\n### 关键指标\n- 乐普医疗 / 净资产收益率：17.6%（第6页）\n- 乐普医疗 / 归属于上市公司股东的净利润：2202809.0（第6页）\n- 乐普医疗 / 归属于上市公司股东的净资产：15146202.0（第6页）\n- 乐普医疗 / 归属于上市公司股东的扣除非经常性损益的净利润：2142486.0（第6页）\n- 乐普医疗 / 总资产：24484033.0（第6页）\n\n### 文档证据\n- 乐普医疗-2023年度报告.md 第41页：- (1)经营活动产生的现金流量净流入99,035.98 万元，较上年同期减少180,034.95 万元，降幅64.51%，主要系营收规模缩 小导致销售回款同比下降；但上年末的应急产品生产等所需的额外人工劳务费、采购原材物料的款项按结算周期于本报告 期集中支付，现金支出的降幅滞后。 (2)筹资活动产生的现金流量净流出29,291.78 万元，较上年同期净流入\n- 乐普医疗-2023年度报告.md 第110页：## 5、报告期末公司的负债情况、资信变化情况以及在未来年度还债的现金安排 公司总资产 2,507,291.74 万元，较期初增长 2.42% ；归属于上市公司股东的净资产 1,597,610.20 万元，较期初增长 5.47% 。 2022 年 6 月 14 日，中诚信国际信用评级有限责任公司对公司及公司存续期内相关债项 进行了跟踪评级。经审定：维持公司的\n\n### 证据边界\n- 未调用大模型推理时，系统不会自动补全结论，只展示本地已命中的结构化指标与原文证据。\n\n参考来源：\n- 乐普医疗 / 2023年 / 第6页\n- 华兰生物 / 2023年 / 第6页\n- 乐普医疗 / 2023年 / 第7页\n- 华兰生物 / 2023年 / 第7页\n- 华兰生物 / 2023年 / 第39页\n- 乐普医疗 / 2023年 / 第213页\n- 华兰生物 / 2023年 / 第17页\n- 华兰生物 / 2023年 / 第19页\n- 乐普医疗 / 2023年 / 第74页\n- 乐普医疗 / 2023年 / 第113页\n- 华兰生物 / 2023年 / 第70页\n- 乐普医疗 / 2023年 / 第36页\n- 华兰生物 / 2023年 / 第72页\n- 乐普医疗 / 2023年 / 第40页\n- 华兰生物 / 2023年 / 第154页\n- 乐普医疗 / 2023年 / 第120页",
+    "chart_spec": {
+      "chart_type": "bar",
+      "x": "company_name",
+      "y": "value_num",
+      "series": null,
+      "rows": [
+        {
+          "company_name": "乐普医疗",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 10552510099.4,
+          "unit": "元",
+          "source_page": 193
+        },
+        {
+          "company_name": "华兰生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 5341872557.46,
+          "unit": "元",
+          "source_page": 70
+        }
+      ]
+    },
+    "warnings": []
+  }
+}

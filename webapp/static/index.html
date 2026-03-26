@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>医药生物企业智能分析与决策支持系统</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">AI</div>
+          <div>
+            <div class="brand-eyebrow">2026 中国大学生计算机设计大赛</div>
+            <h1>医药生物企业智能分析与决策支持系统</h1>
+          </div>
+        </div>
+
+        <section class="panel">
+          <h2>系统状态</h2>
+          <div id="stats" class="stats-grid"></div>
+        </section>
+
+        <section class="panel">
+          <h2>演示控制台</h2>
+          <label class="field">
+            <span>企业</span>
+            <select id="companySelect">
+              <option value="">全部</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>年份</span>
+            <select id="yearSelect">
+              <option value="">全部</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>向量 Top K</span>
+            <input id="topKInput" type="range" min="1" max="10" value="5" />
+            <em id="topKValue">5</em>
+          </label>
+        </section>
+
+        <section class="panel">
+          <h2>推荐演示入口</h2>
+          <div class="quick-list">
+            <button class="ghost quick-question" data-question="请总结ST生物2023年的经营质量、风险点和关注指标">企业诊断</button>
+            <button class="ghost quick-question" data-question="对比华兰生物和乐普医疗2023年的经营差异">双公司对比</button>
+            <button class="ghost quick-question" data-question="结合2022到2024年医疗卫生机构变化，分析ST生物的经营环境">宏观联动</button>
+            <button id="clearHistoryButton" class="ghost" type="button">清空聊天记录</button>
+          </div>
+        </section>
+      </aside>
+
+      <main class="main">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">参赛作品自建网页演示版</p>
+            <h2>像 ChatGPT 一样提问，同时保留企业诊断、宏观联动、图谱分析与可追溯证据能力</h2>
+            <p class="hero-copy">
+              当前版本基于 FastAPI 自托管，已经脱离 Streamlit，正在收口为适合答辩、录屏和部署展示的比赛版网页。
+            </p>
+          </div>
+          <div id="modePill" class="mode-pill">加载中</div>
+        </section>
+
+        <section class="tabs">
+          <button class="tab active" data-tab="chat">💬 智能问答</button>
+          <button class="tab" data-tab="workflow">🪄 自动化报告</button>
+          <button class="tab" data-tab="advanced">🕸️ 高级分析</button>
+          <button class="tab" data-tab="whitebox">🔬 白盒溯源</button>
+        </section>
+
+        <section id="chatTab" class="tab-panel active">
+          <div id="chatMessages" class="messages"></div>
+          <div id="chatFollowups" class="followups"></div>
+          <form id="chatForm" class="composer">
+            <textarea id="chatInput" placeholder="输入企业运营、财务、对比分析或宏观联动问题" rows="1"></textarea>
+            <button type="submit" class="primary">发送</button>
+          </form>
+        </section>
+
+        <section id="workflowTab" class="tab-panel">
+          <div class="panel workflow-form">
+            <label class="field">
+              <span>报告主题</span>
+              <textarea id="workflowInput" rows="3">请为 ST生物 生成经营质量与风险诊断报告</textarea>
+            </label>
+            <div class="action-row">
+              <button id="workflowButton" class="primary" type="button">生成自动化报告</button>
+              <button id="workflowDownloadButton" class="ghost" type="button">下载 Markdown</button>
+            </div>
+          </div>
+          <div id="workflowResult" class="workflow-result"></div>
+        </section>
+
+        <section id="advancedTab" class="tab-panel">
+          <div class="panel workflow-form">
+            <label class="field">
+              <span>高级分析问题</span>
+              <textarea id="advancedInput" rows="3">请分析该公司的股权结构、司法风险与创新能力</textarea>
+            </label>
+            <button id="advancedButton" class="primary" type="button">生成高级分析</button>
+          </div>
+          <div id="advancedResult" class="workflow-result"></div>
+          <div id="advancedNodeDetail" class="workflow-result"></div>
+        </section>
+
+        <section id="whiteboxTab" class="tab-panel">
+          <div id="whiteboxResult" class="workflow-result"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="thinkingTemplate">
+      <div class="message assistant loading">
+        <div class="message-card">
+          <div class="message-role">系统</div>
+          <div class="thinking-title">正在深度思考</div>
+          <div class="thinking-stage" data-stage></div>
+          <div class="thinking-bar"><span></span></div>
+        </div>
+      </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="/static/app.js"></script>
+  </body>
+  </html>

@@ -1,0 +1,1643 @@
+{
+  "type": "chat",
+  "slug": "enterprise_diagnosis",
+  "question": "请总结ST生物2023年的经营质量、风险点和关注指标",
+  "filters": {},
+  "top_k": 5,
+  "result": {
+    "route": "hybrid",
+    "reason": "rule_based",
+    "sql": "SELECT c.company_name, d.report_year, i.indicator_name, f.period_label, f.value_role, f.value_num, f.unit, f.source_page\n            FROM fact_financial_report f\n            JOIN dim_document d ON f.document_id = d.document_id\n            JOIN dim_company c ON d.company_id = c.company_id\n            JOIN dict_financial_indicator i ON f.indicator_id = i.indicator_id\n            WHERE d.is_latest = 1 AND c.company_name IN ('ST生物') AND d.report_year = 2023\n            ORDER BY c.company_name, i.indicator_name, f.value_role DESC, f.period_label DESC",
+    "sql_rows": [
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "净资产收益率",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": -119.65,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "净资产收益率",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": -123.33,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 12694776.1,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": -6997109.89,
+        "unit": "元",
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 28172625.5,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": -1976045.11,
+        "unit": "元",
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净资产",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 13771203.6,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的净资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 256941198.0,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 23050428.5,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": -7355635.07,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 42425832.4,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": -3491368.05,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 553064727.0,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 1718332.02,
+        "unit": null,
+        "source_page": 192
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 149376463.65,
+        "unit": null,
+        "source_page": 197
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 771382516.0,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 55
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 1718332.02,
+        "unit": null,
+        "source_page": 192
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "总资产",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 218862177.64,
+        "unit": null,
+        "source_page": 197
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 9985226.68,
+        "unit": "%",
+        "source_page": 20
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 9985226.68,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 0.0,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 0.0,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 9985226.68,
+        "unit": null,
+        "source_page": 98
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 9985226.68,
+        "unit": null,
+        "source_page": 180
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 12567051.06,
+        "unit": "%",
+        "source_page": 20
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 12567051.06,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 0.0,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 0.0,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 12567051.06,
+        "unit": null,
+        "source_page": 98
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": -1428898.8,
+        "unit": null,
+        "source_page": 174
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "研发费用",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 12567051.06,
+        "unit": null,
+        "source_page": 180
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 166381243.0,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 8996758.31,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 166381243.04,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 166381243.04,
+        "unit": null,
+        "source_page": 101
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 336195.83,
+        "unit": null,
+        "source_page": 102
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 166381243.04,
+        "unit": null,
+        "source_page": 177
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 36276713.5,
+        "unit": "%",
+        "source_page": 7
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 221498.68,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 36276713.53,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 36276713.53,
+        "unit": null,
+        "source_page": 101
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 20680375.52,
+        "unit": null,
+        "source_page": 102
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "经营活动产生的现金流量净额",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 36276713.53,
+        "unit": null,
+        "source_page": 177
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 200345457.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 200345457.02,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 34932543.08,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 165412913.94,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 35694129.92,
+        "unit": "元",
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 17
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 4.98,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 200345457.02,
+        "unit": "元",
+        "source_page": 97
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 200345457.02,
+        "unit": "元",
+        "source_page": 97
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 15155155.48,
+        "unit": "元",
+        "source_page": 99
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 200345457.02,
+        "unit": "元",
+        "source_page": 167
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 34932543.08,
+        "unit": "元",
+        "source_page": 167
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 17.44,
+        "unit": "元",
+        "source_page": 167
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 5864495.2,
+        "unit": null,
+        "source_page": 168
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2022FY",
+        "value_role": "historical",
+        "value_num": 165412913.94,
+        "unit": null,
+        "source_page": 168
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 136790924.0,
+        "unit": "%",
+        "source_page": 6
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 136790924.97,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 348833.03,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 136442091.94,
+        "unit": null,
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 34739572.68,
+        "unit": "元",
+        "source_page": 8
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 136790924.97,
+        "unit": "%",
+        "source_page": 17
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 9.19,
+        "unit": "%",
+        "source_page": 25
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 100.0,
+        "unit": "%",
+        "source_page": 55
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 136790924.97,
+        "unit": "元",
+        "source_page": 97
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 136790924.97,
+        "unit": "元",
+        "source_page": 97
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 8448134.9,
+        "unit": "元",
+        "source_page": 99
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 136790924.97,
+        "unit": "元",
+        "source_page": 167
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 348833.03,
+        "unit": "元",
+        "source_page": 167
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 0.26,
+        "unit": "元",
+        "source_page": 167
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 348833.03,
+        "unit": null,
+        "source_page": 168
+      },
+      {
+        "company_name": "ST生物",
+        "report_year": 2023,
+        "indicator_name": "营业收入",
+        "period_label": "2023FY",
+        "value_role": "current",
+        "value_num": 136442091.94,
+        "unit": null,
+        "source_page": 168
+      }
+    ],
+    "macro_sql": null,
+    "macro_rows": [],
+    "chunks": [
+      {
+        "text": "## 2、资产或股权收购、出售发生的关联交易\n\n□适用 不适用\n\n公司报告期未发生资产或股权收购、出售的关联交易。",
+        "metadata": {
+          "report_year": 2023,
+          "company_name": "ST生物",
+          "stock_code": "",
+          "source": "ST生物-2023年度报告.md",
+          "page": 75,
+          "document_id": 6,
+          "chunk_index": 253,
+          "file_path": "/Volumes/ORICO/code1/reports_md/ST生物-2023年度报告.md",
+          "industry_name": "",
+          "doc_type": "annual_report"
+        },
+        "distance": 1.465477466583252
+      },
+      {
+        "text": "金融资产整体转移满足终止确认条件的，将下列两项金额的差额计入当期损益：(1)所转移金融资产在终止确认日的 账面价值；(2)因转移金融资产而收到的对价，与原直接计入其他综合收益的公允价值变动累计额中对应终止确认部分的 金额(涉及转移的金融资产为以公允价值计量且其变动计入其他综合收益的债务工具投资)之和。转移了金融资产的一部 分，且该被转移部分整体满足终止确认条件的，将转移前金融资产整体的账面价值，在终止确认部分和继续确认部分之 间，按照转移日各自的相对公允价值进行分摊，并将下列两项金额的差额计入当期损益：(1)终止确认部分的账面价值； (2)终止确认部分的对价，与原直接计入其他综合收益的公允价值变动累计额中对应终止确认部分的金额(涉及转移的金 融资产为以公允价值计量且其变动计入其他综合收益的债务工具投资)之和。",
+        "metadata": {
+          "industry_name": "",
+          "source": "ST生物-2023年度报告.md",
+          "chunk_index": 374,
+          "doc_type": "annual_report",
+          "file_path": "/Volumes/ORICO/code1/reports_md/ST生物-2023年度报告.md",
+          "page": 120,
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "stock_code": "",
+          "document_id": 6
+        },
+        "distance": 1.7538169622421265
+      }
+    ],
+    "sources": [
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第7页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"净资产收益率\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": -119.65, \"unit\": \"%\", \"source_page\": 7}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第8页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": -6997109.89, \"unit\": \"元\", \"source_page\": 8}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第192页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 1718332.02, \"unit\": null, \"source_page\": 192}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第197页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 149376463.65, \"unit\": null, \"source_page\": 197}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第55页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 100.0, \"unit\": \"%\", \"source_page\": 55}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第20页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 9985226.68, \"unit\": \"%\", \"source_page\": 20}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第25页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 9985226.68, \"unit\": \"%\", \"source_page\": 25}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第98页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 9985226.68, \"unit\": null, \"source_page\": 98}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第180页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 9985226.68, \"unit\": null, \"source_page\": 180}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第174页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": -1428898.8, \"unit\": null, \"source_page\": 174}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第101页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"经营活动产生的现金流量净额\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 166381243.04, \"unit\": null, \"source_page\": 101}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第102页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"经营活动产生的现金流量净额\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 336195.83, \"unit\": null, \"source_page\": 102}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第177页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"经营活动产生的现金流量净额\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 166381243.04, \"unit\": null, \"source_page\": 177}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第6页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"营业收入\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 200345457.0, \"unit\": \"%\", \"source_page\": 6}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第17页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"营业收入\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 100.0, \"unit\": \"%\", \"source_page\": 17}"
+      },
+      {
+        "type": "sql",
+        "label": "ST生物 / 2023年 / 第97页",
+        "snippet": "{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"营业收入\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 200345457.02, \"unit\": \"元\", \"source_page\": 97}"
+      }
+    ],
+    "context": "[SQL结果]\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"净资产收益率\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": -119.65, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"净资产收益率\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": -123.33, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 12694776.1, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": -6997109.89, \"unit\": \"元\", \"source_page\": 8}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 28172625.5, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净利润\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": -1976045.11, \"unit\": \"元\", \"source_page\": 8}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 13771203.6, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的净资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 256941198.0, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的扣除非经常性损益的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 23050428.5, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的扣除非经常性损益的净利润\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": -7355635.07, \"unit\": null, \"source_page\": 8}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的扣除非经常性损益的净利润\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 42425832.4, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"归属于上市公司股东的扣除非经常性损益的净利润\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": -3491368.05, \"unit\": null, \"source_page\": 8}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 553064727.0, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 1718332.02, \"unit\": null, \"source_page\": 192}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 149376463.65, \"unit\": null, \"source_page\": 197}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 771382516.0, \"unit\": \"%\", \"source_page\": 7}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 100.0, \"unit\": \"%\", \"source_page\": 55}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 1718332.02, \"unit\": null, \"source_page\": 192}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"总资产\", \"period_label\": \"2023FY\", \"value_role\": \"current\", \"value_num\": 218862177.64, \"unit\": null, \"source_page\": 197}\n{\"company_name\": \"ST生物\", \"report_year\": 2023, \"indicator_name\": \"研发费用\", \"period_label\": \"2022FY\", \"value_role\": \"historical\", \"value_num\": 9985226.68, \"unit\": \"%\", \"source_page\": 20}\n\n[向量检索]\n[1] 来源：ST生物-2023年度报告.md 第75页\n## 2、资产或股权收购、出售发生的关联交易\n\n□适用 不适用\n\n公司报告期未发生资产或股权收购、出售的关联交易。\n\n[2] 来源：ST生物-2023年度报告.md 第120页\n金融资产整体转移满足终止确认条件的，将下列两项金额的差额计入当期损益：(1)所转移金融资产在终止确认日的 账面价值；(2)因转移金融资产而收到的对价，与原直接计入其他综合收益的公允价值变动累计额中对应终止确认部分的 金额(涉及转移的金融资产为以公允价值计量且其变动计入其他综合收益的债务工具投资)之和。转移了金融资产的一部 分，且该被转移部分整体满足终止确认条件的，将转移前金融资产整体的账面价值，在终止确认部分和继续确认部分之 间，按照转移日各自的相对公允价值进行分摊，并将下列两项金额的差额计入当期损益：(1)终止确认部分的账面价值； (2)终止确认部分的对价，与原直接计入其他综合收益的公允价值变动累计额中对应终止确认部分的金额(涉及转移的金 融资产为以公允价值计量且其变动计入其他综合收益的债务工具投资)之和。",
+    "answer_markdown": "## 本地检索回答\n\n**问题**：请总结ST生物2023年的经营质量、风险点和关注指标\n\n已基于本地 SQLite + Chroma 完成检索整合；当前为无大模型降级回答，结论以证据摘录为主。\n\n### 结构化财务线索\n\n### 经营标签\n`利润修复` | `现金流为正` | `回报率偏弱`\n\n### 摘要判断\nST生物当前呈现的特征是：营业收入下降、归属于上市公司股东的净利润上升、经营活动产生的现金流量净额下降。该结论基于本地财务事实抽取，适合用作快速研判起点，详细判断仍需结合原文与多期数据继续追问。\n\n### 快速结论\n- ST生物营业收入当前值为 136790924.0，较上期下降\n- ST生物归属于上市公司股东的净利润当前值为 28172625.5，较上期上升\n- ST生物经营活动产生的现金流量净额当前值为 36276713.5，较上期下降\n- ST生物总资产当前值为 771382516.0，较上期上升\n\n### 关键指标\n- 净资产收益率：-119.65%（第7页）\n- 归属于上市公司股东的净利润：12694776.1（第7页）\n- 归属于上市公司股东的净资产：13771203.6（第7页）\n- 归属于上市公司股东的扣除非经常性损益的净利润：23050428.5（第7页）\n- 总资产：553064727.0（第7页）\n\n### 文档证据\n- ST生物-2023年度报告.md 第75页：## 2、资产或股权收购、出售发生的关联交易 □适用 不适用 公司报告期未发生资产或股权收购、出售的关联交易。\n- ST生物-2023年度报告.md 第120页：金融资产整体转移满足终止确认条件的，将下列两项金额的差额计入当期损益：(1)所转移金融资产在终止确认日的 账面价值；(2)因转移金融资产而收到的对价，与原直接计入其他综合收益的公允价值变动累计额中对应终止确认部分的 金额(涉及转移的金融资产为以公允价值计量且其变动计入其他综合收益的债务工具投资)之和。转移了金融资产的一部 分，且该被转移部分整体满足终止确认条\n\n### 证据边界\n- 未调用大模型推理时，系统不会自动补全结论，只展示本地已命中的结构化指标与原文证据。\n\n参考来源：\n- ST生物 / 2023年 / 第7页\n- ST生物 / 2023年 / 第8页\n- ST生物 / 2023年 / 第192页\n- ST生物 / 2023年 / 第197页\n- ST生物 / 2023年 / 第55页\n- ST生物 / 2023年 / 第20页\n- ST生物 / 2023年 / 第25页\n- ST生物 / 2023年 / 第98页\n- ST生物 / 2023年 / 第180页\n- ST生物 / 2023年 / 第174页\n- ST生物 / 2023年 / 第101页\n- ST生物 / 2023年 / 第102页\n- ST生物 / 2023年 / 第177页\n- ST生物 / 2023年 / 第6页\n- ST生物 / 2023年 / 第17页\n- ST生物 / 2023年 / 第97页",
+    "chart_spec": {
+      "chart_type": "bar",
+      "x": "report_year",
+      "y": "value_num",
+      "series": "company_name",
+      "rows": [
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "净资产收益率",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": -119.65,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "净资产收益率",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": -123.33,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的净利润",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 12694776.1,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的净利润",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": -6997109.89,
+          "unit": "元",
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的净利润",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 28172625.5,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的净利润",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": -1976045.11,
+          "unit": "元",
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的净资产",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 13771203.6,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的净资产",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 256941198.0,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 23050428.5,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": -7355635.07,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 42425832.4,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "归属于上市公司股东的扣除非经常性损益的净利润",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": -3491368.05,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "总资产",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 553064727.0,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "总资产",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 1718332.02,
+          "unit": null,
+          "source_page": 192
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "总资产",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 149376463.65,
+          "unit": null,
+          "source_page": 197
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "总资产",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 771382516.0,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "总资产",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 100.0,
+          "unit": "%",
+          "source_page": 55
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "总资产",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 1718332.02,
+          "unit": null,
+          "source_page": 192
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "总资产",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 218862177.64,
+          "unit": null,
+          "source_page": 197
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 9985226.68,
+          "unit": "%",
+          "source_page": 20
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 9985226.68,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 0.0,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 0.0,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 9985226.68,
+          "unit": null,
+          "source_page": 98
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 9985226.68,
+          "unit": null,
+          "source_page": 180
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 12567051.06,
+          "unit": "%",
+          "source_page": 20
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 12567051.06,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 0.0,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 0.0,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 12567051.06,
+          "unit": null,
+          "source_page": 98
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": -1428898.8,
+          "unit": null,
+          "source_page": 174
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "研发费用",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 12567051.06,
+          "unit": null,
+          "source_page": 180
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 166381243.0,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 8996758.31,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 166381243.04,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 166381243.04,
+          "unit": null,
+          "source_page": 101
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 336195.83,
+          "unit": null,
+          "source_page": 102
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 166381243.04,
+          "unit": null,
+          "source_page": 177
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 36276713.5,
+          "unit": "%",
+          "source_page": 7
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 221498.68,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 36276713.53,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 36276713.53,
+          "unit": null,
+          "source_page": 101
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 20680375.52,
+          "unit": null,
+          "source_page": 102
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "经营活动产生的现金流量净额",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 36276713.53,
+          "unit": null,
+          "source_page": 177
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 200345457.0,
+          "unit": "%",
+          "source_page": 6
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 200345457.02,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 34932543.08,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 165412913.94,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 35694129.92,
+          "unit": "元",
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 100.0,
+          "unit": "%",
+          "source_page": 17
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 4.98,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 200345457.02,
+          "unit": "元",
+          "source_page": 97
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 200345457.02,
+          "unit": "元",
+          "source_page": 97
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 15155155.48,
+          "unit": "元",
+          "source_page": 99
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 200345457.02,
+          "unit": "元",
+          "source_page": 167
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 34932543.08,
+          "unit": "元",
+          "source_page": 167
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 17.44,
+          "unit": "元",
+          "source_page": 167
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 5864495.2,
+          "unit": null,
+          "source_page": 168
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2022FY",
+          "value_role": "historical",
+          "value_num": 165412913.94,
+          "unit": null,
+          "source_page": 168
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 136790924.0,
+          "unit": "%",
+          "source_page": 6
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 136790924.97,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 348833.03,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 136442091.94,
+          "unit": null,
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 34739572.68,
+          "unit": "元",
+          "source_page": 8
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 136790924.97,
+          "unit": "%",
+          "source_page": 17
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 9.19,
+          "unit": "%",
+          "source_page": 25
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 100.0,
+          "unit": "%",
+          "source_page": 55
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 136790924.97,
+          "unit": "元",
+          "source_page": 97
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 136790924.97,
+          "unit": "元",
+          "source_page": 97
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 8448134.9,
+          "unit": "元",
+          "source_page": 99
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 136790924.97,
+          "unit": "元",
+          "source_page": 167
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 348833.03,
+          "unit": "元",
+          "source_page": 167
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 0.26,
+          "unit": "元",
+          "source_page": 167
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 348833.03,
+          "unit": null,
+          "source_page": 168
+        },
+        {
+          "company_name": "ST生物",
+          "report_year": 2023,
+          "indicator_name": "营业收入",
+          "period_label": "2023FY",
+          "value_role": "current",
+          "value_num": 136442091.94,
+          "unit": null,
+          "source_page": 168
+        }
+      ]
+    },
+    "warnings": []
+  }
+}

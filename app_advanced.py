@@ -5,7 +5,7 @@ import streamlit as st
 
 from agent_tools import run_advanced_analysis, tool_get_equity_penetration, tool_get_innovation_index, tool_get_risk_radar
 from retriever import DEFAULT_CHROMA_PATH, DEFAULT_DB_PATH, create_optional_client
-from ui_common import build_sidebar, load_chroma_stats, load_filters, render_echarts, render_sources
+from ui_common import build_sidebar, load_chroma_stats, load_filters, render_echarts, render_interactive_table, render_sources
 
 st.set_page_config(page_title="企业全景画像与高级分析", layout="wide")
 
@@ -52,9 +52,9 @@ def render_radar_summary(company_name):
     render_echarts(options=option, height="420px")
     col1, col2 = st.columns(2)
     with col1:
-        st.dataframe(pd.DataFrame(risk_data.get("details") or []))
+        render_interactive_table(pd.DataFrame(risk_data.get("details") or []), max_rows=30, height_px=320, caption="风险明细悬停可查看完整数据。")
     with col2:
-        st.dataframe(pd.DataFrame(innovation_data.get("details") or []))
+        render_interactive_table(pd.DataFrame(innovation_data.get("details") or []), max_rows=30, height_px=320, caption="创新明细悬停可查看完整数据。")
 
 
 def render_equity_tab(default_company):
@@ -91,7 +91,7 @@ def render_equity_tab(default_company):
             {
                 "type": "graph",
                 "layout": "force",
-                "roam": True,
+                "roam": False,
                 "label": {"show": True},
                 "categories": [{"name": "核心公司"}, {"name": "公司"}, {"name": "个人"}],
                 "data": nodes,
@@ -102,7 +102,7 @@ def render_equity_tab(default_company):
         ],
     }
     render_echarts(options=option, height="620px")
-    st.dataframe(pd.DataFrame(equity_data["edges"]))
+    render_interactive_table(pd.DataFrame(equity_data["edges"]), max_rows=80, height_px=360, caption="股权边列表悬停可查看完整数据。")
 
 
 def main():

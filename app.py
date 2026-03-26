@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from retriever import answer_query, create_optional_client
-from ui_common import build_sidebar, get_project_paths_caption, render_chart, render_sources
+from ui_common import build_sidebar, get_project_paths_caption, render_chart, render_interactive_table, render_sources
 
 st.set_page_config(page_title="企业运营分析与决策支持系统", layout="wide")
 
@@ -64,7 +64,7 @@ def main():
             if result.get("sql"):
                 st.code(result["sql"], language="sql")
             if result.get("sql_rows"):
-                st.dataframe(pd.DataFrame(result["sql_rows"]))
+                render_interactive_table(pd.DataFrame(result["sql_rows"]), max_rows=80, caption="悬停单元格可查看完整值。")
             if result.get("chunks"):
                 for item in result["chunks"]:
                     meta = item.get("metadata") or {}

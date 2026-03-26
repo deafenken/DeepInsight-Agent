@@ -3,12 +3,14 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 from openai import OpenAI
 
 from agent_tools import run_advanced_analysis
-from ui_common import load_chroma_stats, load_filters, render_chart, render_echarts, render_sources
+from ui_common import build_result_chips, extract_metric_cards, extract_summary_card, load_chroma_stats, load_filters, render_auto_scroll_bottom, render_chart, render_chip_row, render_echarts, render_metric_cards, render_sources, render_streamed_markdown
 from app_persona import ROLE_PROMPTS
 from cache_tools import SemanticCache
+from demo_cache import get_advanced_cache, get_chat_cache, get_workflow_cache
 from retriever import DEFAULT_CHROMA_PATH, DEFAULT_DB_PATH, answer_query, create_default_client
 from workflow_report import render_workflow_result, run_workflow
 from app_whitebox import MOCK_ANSWER, MOCK_CHUNKS, MOCK_REASONING, MOCK_SQL, get_reasoning_content
@@ -60,6 +62,20 @@ def inject_apple_ui():
           font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
         }
 
+        #MainMenu,
+        header[data-testid="stHeader"],
+        footer,
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"] {
+          display: none !important;
+          visibility: hidden !important;
+          height: 0 !important;
+        }
+
+        [data-testid="collapsedControl"] {
+          display: none !important;
+        }
+
         [data-testid="stAppViewContainer"] {
           background:
             radial-gradient(circle at 12% 18%, rgba(162,210,255,0.38), transparent 34%),
@@ -107,8 +123,8 @@ def inject_apple_ui():
 
         .block-container {
           max-width: 1120px;
-          padding-top: 2rem;
-          padding-bottom: 3rem;
+          padding-top: 1.25rem;
+          padding-bottom: 10rem;
           position: relative;
           z-index: 2;
           animation: fadeInUp 0.7s var(--spring);
@@ -173,9 +189,10 @@ def inject_apple_ui():
         }
 
         .apple-hero {
-          padding: 34px 34px 30px 34px;
+          padding: 28px 30px 24px 30px;
           overflow: hidden;
           position: relative;
+          margin-bottom: 18px;
         }
 
         .apple-hero::after {
@@ -193,14 +210,14 @@ def inject_apple_ui():
         .apple-bento {
           display: grid;
           grid-template-columns: repeat(12, minmax(0, 1fr));
-          gap: 24px;
-          margin: 20px 0 10px;
+          gap: 16px;
+          margin: 16px 0 0;
         }
 
         .apple-stat {
           grid-column: span 3;
-          padding: 22px 22px 18px;
-          min-height: 126px;
+          padding: 16px 18px 14px;
+          min-height: 96px;
           transition: transform .36s var(--spring), box-shadow .36s var(--spring), filter .36s var(--spring);
           animation: fadeInUp 0.72s var(--spring);
         }
@@ -214,29 +231,57 @@ def inject_apple_ui():
         }
 
         .apple-stat-label {
-          font-size: 0.92rem;
+          font-size: 0.88rem;
           color: var(--muted);
-          margin-bottom: 10px;
+          margin-bottom: 8px;
         }
 
         .apple-stat-value {
-          font-size: clamp(1.8rem, 2vw, 2.4rem);
+          font-size: clamp(1.65rem, 1.9vw, 2.2rem);
           line-height: 1;
           font-weight: 700;
           letter-spacing: -0.03em;
-          margin-bottom: 12px;
+          margin-bottom: 8px;
         }
 
         .apple-stat-meta {
-          font-size: 0.9rem;
+          font-size: 0.84rem;
           color: var(--muted);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .apple-section {
           padding: 24px 24px 18px;
-          margin-top: 12px;
+          margin-top: 18px;
           transition: transform .36s var(--spring), box-shadow .36s var(--spring), filter .36s var(--spring);
           animation: fadeInUp 0.82s var(--spring);
+        }
+
+        .highlight-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+        }
+
+        .highlight-card {
+          padding: 14px 16px;
+          min-height: 84px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 6px;
+        }
+
+        .highlight-card strong {
+          font-size: 1rem;
+        }
+
+        .highlight-card span {
+          color: var(--muted);
+          font-size: 0.92rem;
+          line-height: 1.45;
         }
 
         .apple-section-head {
@@ -322,6 +367,7 @@ def inject_apple_ui():
         [data-baseweb="tab-list"] {
           gap: 12px;
           padding: 8px;
+          margin-top: 14px;
           background: rgba(255,255,255,0.62);
           border-radius: 999px;
           border: 1px solid var(--line);
@@ -340,10 +386,58 @@ def inject_apple_ui():
           box-shadow: 0 8px 18px rgba(15,23,42,0.08);
         }
 
+        .top-path-caption {
+          display: block;
+          margin-bottom: 10px;
+        }
+
         [data-testid="stChatMessage"] {
           padding: 18px 18px 10px;
           margin-bottom: 18px;
           animation: fadeInUp 0.56s var(--spring);
+        }
+
+        [data-testid="stChatInput"] {
+          position: fixed;
+          left: calc(50% + (var(--sidebar-width, 0px) / 2));
+          transform: translateX(-50%);
+          width: min(860px, calc(100vw - var(--sidebar-width, 0px) - 2rem));
+          right: auto;
+          bottom: 1rem;
+          z-index: 100;
+          background: rgba(245,245,247,0.78);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          padding: 10px 12px 14px;
+          border-radius: 28px;
+          border: 1px solid rgba(255,255,255,0.62);
+          box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+        }
+
+        .sidebar-return-button {
+          position: fixed;
+          top: 0.9rem;
+          left: 0.9rem;
+          z-index: 1000;
+          width: 42px;
+          height: 42px;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.92);
+          border: 1px solid rgba(15, 23, 42, 0.08);
+          box-shadow: 0 10px 22px rgba(15, 23, 42, 0.10);
+          color: #1d1d1f;
+          font-size: 1.1rem;
+          cursor: pointer;
+          backdrop-filter: blur(16px);
+        }
+
+        [data-testid="stChatInput"] textarea,
+        [data-testid="stChatInput"] input {
+          background: rgba(255,255,255,0.96) !important;
+          border-radius: 18px !important;
         }
 
         [data-testid="stExpander"] {
@@ -364,19 +458,126 @@ def inject_apple_ui():
           border-radius: var(--radius) !important;
         }
 
+        .thinking-shell {
+          padding: 18px 18px 14px;
+          border-radius: 22px;
+          background: rgba(255,255,255,0.82);
+          border: 1px solid rgba(255,255,255,0.62);
+          box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+        }
+
+        .thinking-title {
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+
+        .thinking-desc {
+          color: var(--muted);
+          font-size: 0.93rem;
+          margin-bottom: 12px;
+        }
+
+        .thinking-bar {
+          position: relative;
+          height: 8px;
+          border-radius: 999px;
+          background: rgba(15, 23, 42, 0.08);
+          overflow: hidden;
+        }
+
+        .thinking-bar::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          width: 32%;
+          border-radius: 999px;
+          background: linear-gradient(90deg, rgba(10,132,255,0.15), rgba(10,132,255,0.96), rgba(125,211,252,0.55));
+          animation: thinkingSlide 1.25s var(--spring) infinite;
+        }
+
+        @keyframes thinkingSlide {
+          0% { transform: translateX(-120%); }
+          100% { transform: translateX(320%); }
+        }
+
         @media (max-width: 1100px) {
           .apple-stat { grid-column: span 6; }
+          .highlight-grid { grid-template-columns: 1fr; }
+          .apple-stat-meta { white-space: normal; }
         }
 
         @media (max-width: 720px) {
           .apple-bento { grid-template-columns: 1fr; }
           .apple-stat { grid-column: span 1; }
-          .apple-hero { padding: 26px 22px 22px; }
+          .apple-hero { padding: 24px 20px 20px; }
           h1 { font-size: 2.3rem; }
+          [data-testid="stChatInput"] {
+            left: 50% !important;
+            width: calc(100vw - 1.5rem) !important;
+            bottom: 0.75rem;
+          }
         }
         </style>
         """,
         unsafe_allow_html=True,
+    )
+
+
+def inject_layout_bridge():
+    components.html(
+        """
+        <script>
+        const doc = window.parent.document;
+        const root = doc.documentElement;
+
+        const ensureButton = () => {
+          let button = doc.getElementById("codex-sidebar-return");
+          if (!button) {
+            button = doc.createElement("button");
+            button.id = "codex-sidebar-return";
+            button.className = "sidebar-return-button";
+            button.type = "button";
+            button.setAttribute("aria-label", "展开侧边栏");
+            button.textContent = "☰";
+            button.addEventListener("click", () => {
+              const collapsed = doc.querySelector('[data-testid="collapsedControl"]');
+              const target = collapsed?.querySelector("button") || collapsed;
+              if (target) target.click();
+            });
+            doc.body.appendChild(button);
+          }
+          return button;
+        };
+
+        const updateLayout = () => {
+          const sidebar = doc.querySelector('[data-testid="stSidebar"]');
+          const button = ensureButton();
+          if (!sidebar) {
+            root.style.setProperty("--sidebar-width", "0px");
+            button.style.display = "none";
+            return;
+          }
+          const expanded = sidebar.getAttribute("aria-expanded") !== "false";
+          const width = expanded ? `${Math.round(sidebar.getBoundingClientRect().width)}px` : "0px";
+          root.style.setProperty("--sidebar-width", width);
+          button.style.display = expanded ? "none" : "flex";
+        };
+
+        updateLayout();
+
+        const sidebar = doc.querySelector('[data-testid="stSidebar"]');
+        if (sidebar && !sidebar.dataset.codexObserved) {
+          const observer = new ResizeObserver(updateLayout);
+          observer.observe(sidebar);
+          sidebar.dataset.codexObserved = "true";
+        }
+
+        window.parent.addEventListener("resize", updateLayout, { passive: true });
+        const timer = window.setInterval(updateLayout, 600);
+        window.addEventListener("beforeunload", () => window.clearInterval(timer));
+        </script>
+        """,
+        height=0,
     )
 
 
@@ -388,34 +589,80 @@ def render_hero_section(stats, chroma_stats):
             <div class="apple-section-title">
               <div class="apple-icon">􀇵</div>
               <div>
-                <div class="apple-muted">Enterprise Intelligence OS</div>
-                <h1>智能体赋能的企业运营分析与决策支持统一系统</h1>
-                <div class="apple-section-desc">以 Bento Grid 组织问答、图谱、工作流、白盒溯源与调试视图，在一个统一系统中完成比赛级展示。</div>
+                <div class="apple-muted">2026 中国大学生计算机设计大赛大数据主题赛参赛作品</div>
+                <h1>医药生物企业智能分析与决策支持系统</h1>
+                <div class="apple-section-desc">聚焦医药生物赛题方向，融合关系数据库、向量库、多角色问答、宏观联动分析与自动化报告生成，形成可展示、可追溯、可交互的比赛作品原型。</div>
               </div>
             </div>
             <div class="apple-bento">
               <article class="apple-stat">
                 <div class="apple-stat-label">🏢 企业主体</div>
                 <div class="apple-stat-value">{stats['companies']}</div>
-                <div class="apple-stat-meta">覆盖结构化公司实体与关系节点</div>
+                <div class="apple-stat-meta">覆盖公司实体与关系节点</div>
               </article>
               <article class="apple-stat">
                 <div class="apple-stat-label">📄 文档规模</div>
                 <div class="apple-stat-value">{stats['documents']}</div>
-                <div class="apple-stat-meta">已导入的年报 / 研报文档数</div>
+                <div class="apple-stat-meta">已导入年报与研报文档</div>
               </article>
               <article class="apple-stat">
                 <div class="apple-stat-label">📊 财务事实</div>
                 <div class="apple-stat-value">{stats['financial_facts']}</div>
-                <div class="apple-stat-meta">支持精确 SQL 与诊断图表</div>
+                <div class="apple-stat-meta">支持 SQL 检索与诊断图表</div>
               </article>
               <article class="apple-stat">
                 <div class="apple-stat-label">🧠 文本块</div>
                 <div class="apple-stat-value">{chroma_stats['chunks']}</div>
-                <div class="apple-stat-meta">向量库 Chroma 检索上下文规模</div>
+                <div class="apple-stat-meta">Chroma 向量检索上下文规模</div>
               </article>
             </div>
           </section>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_competition_brief():
+    st.markdown(
+        """
+        <div class="apple-card" style="padding:22px 24px; margin-bottom:18px;">
+          <div style="font-size:1.05rem; font-weight:700; margin-bottom:8px;">作品亮点</div>
+          <div class="apple-muted" style="margin-bottom:14px;">
+            系统面向投资者、管理者、监管机构三类角色，支持企业问答、双公司比较、企业与宏观数据联动、白盒溯源与自动化报告生成，适合直接用于比赛答辩与视频演示。
+          </div>
+          <div class="highlight-grid">
+            <div class="apple-card highlight-card">
+              <strong>双库协同</strong>
+              <span>SQLite 财务与宏观，Chroma 原文证据。</span>
+            </div>
+            <div class="apple-card highlight-card">
+              <strong>多角色智能体</strong>
+              <span>投资者、管理者、监管机构三视角切换。</span>
+            </div>
+            <div class="apple-card highlight-card">
+              <strong>联动分析</strong>
+              <span>企业财务、年报原文与卫生宏观数据联合判断。</span>
+            </div>
+            <div class="apple-card highlight-card">
+              <strong>可追溯输出</strong>
+              <span>答案、SQL、原文切片与来源标签可折叠查看。</span>
+            </div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_demo_guide():
+    st.markdown(
+        """
+        <div class="apple-card" style="padding:20px 22px; margin-bottom:18px;">
+          <div style="font-size:1rem; font-weight:700; margin-bottom:6px;">答辩演示建议路径</div>
+          <div class="apple-muted">
+            推荐展示顺序：企业诊断 → 双公司比较 → 企业+宏观联动 → 白盒溯源 → 自动化报告。这样最能体现本作品的多源数据整合、智能问答、分析推理与可追溯能力。
+          </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -463,12 +710,22 @@ def init_state():
     st.session_state.setdefault("cache_metrics", {"hits": 0, "misses": 0})
     st.session_state.setdefault("selected_role", "投资者模式")
     st.session_state.setdefault("selected_model", DEFAULT_MODEL)
+    st.session_state.setdefault("system_pending_prompt", None)
+    st.session_state.setdefault("use_demo_cache", True)
+    st.session_state.setdefault("pending_chat_scroll_id", None)
+    st.session_state.setdefault("consumed_chat_scroll_id", None)
+    st.session_state.setdefault("pending_workflow_scroll_nonce", 0)
+    st.session_state.setdefault("consumed_workflow_scroll_nonce", 0)
+    st.session_state.setdefault(
+        "system_context",
+        {"company_name": None, "report_year": None, "macro_topic": False, "last_topic": None, "compare_companies": []},
+    )
 
 
 def build_unified_sidebar():
-    industries, companies, years, stats = load_filters()
+    _, companies, years, stats = load_filters()
     chroma_stats = load_chroma_stats()
-    st.sidebar.title("Apple 风格控制台")
+    st.sidebar.title("医药生物控制台")
     st.sidebar.markdown("### 系统状态")
     st.sidebar.write(f"企业数：{stats['companies']}")
     st.sidebar.write(f"文档数：{stats['documents']}")
@@ -476,13 +733,13 @@ def build_unified_sidebar():
     st.sidebar.write(f"宏观事实数：{stats['macro_facts']}")
     st.sidebar.write(f"文本块数：{chroma_stats['chunks']}")
 
-    industry = st.sidebar.selectbox("行业", ["全部"] + industries, index=0)
     company = st.sidebar.selectbox("企业", ["全部"] + companies, index=0)
     year = st.sidebar.selectbox("年份", ["全部"] + [str(item) for item in years], index=0)
     role = st.sidebar.radio("角色模式", list(ROLE_PROMPTS.keys()), index=list(ROLE_PROMPTS.keys()).index(st.session_state.selected_role))
     model = st.sidebar.selectbox("DeepSeek 模型", ["deepseek-chat", "deepseek-reasoner"], index=0 if st.session_state.selected_model == "deepseek-chat" else 1)
     top_k = st.sidebar.slider("向量 Top K", min_value=1, max_value=10, value=5)
     use_cache = st.sidebar.toggle("启用语义缓存", value=True)
+    use_demo_cache = st.sidebar.toggle("演示极速模式", value=st.session_state.use_demo_cache, help="命中预置演示问题时优先读取本地 JSON 缓存。")
 
     if st.sidebar.button("清空全部会话"):
         st.session_state.system_messages = []
@@ -492,15 +749,14 @@ def build_unified_sidebar():
 
     st.session_state.selected_role = role
     st.session_state.selected_model = model
+    st.session_state.use_demo_cache = use_demo_cache
 
     filters = {}
-    if industry != "全部":
-        filters["industry_name"] = industry
     if company != "全部":
         filters["company_name"] = company
     if year != "全部":
         filters["report_year"] = int(year)
-    return filters, top_k, role, model, use_cache, stats, chroma_stats, companies
+    return filters, top_k, role, model, use_cache, use_demo_cache, stats, chroma_stats, companies
 
 
 def call_openai_deepseek(messages, model):
@@ -525,7 +781,209 @@ def build_persona_prompt(role_name):
     return f"{base_prompt}\n\n当前角色：{role_name}\n{ROLE_PROMPTS[role_name]}"
 
 
-def render_basic_chat_tab(filters, top_k, use_cache):
+CHATGPT_STYLE_STARTERS = [
+    "请总结 ST生物 最新年度的经营质量、风险点和关注指标",
+    "对比 华兰生物 和 乐普医疗 近年的经营表现差异",
+    "从监管机构视角梳理一家公司的潜在合规风险",
+    "基于年报与研报，生成一份可追溯的投资分析摘要",
+]
+
+
+def queue_system_prompt(prompt):
+    st.session_state.system_pending_prompt = prompt
+
+
+def render_chat_empty_state():
+    st.markdown(
+        """
+        <div class="apple-card" style="padding:22px 24px; margin-bottom:18px;">
+          <div style="font-size:1.1rem; font-weight:700; margin-bottom:8px;">像 ChatGPT 一样开始提问</div>
+          <div class="apple-muted" style="margin-bottom:16px;">
+            直接输入企业名、年份和你的任务目标。系统会优先组合关系库与向量库，再给出可追溯回答。
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    cols = st.columns(2)
+    for index, starter in enumerate(CHATGPT_STYLE_STARTERS):
+        with cols[index % 2]:
+            if st.button(starter, key=f"starter_{index}", use_container_width=True):
+                queue_system_prompt(starter)
+                st.rerun()
+
+
+def render_demo_launchers():
+    st.markdown(
+        """
+        <div class="apple-card" style="padding:20px 22px; margin-bottom:18px;">
+          <div style="font-size:1rem; font-weight:700; margin-bottom:6px;">比赛演示快捷入口</div>
+          <div class="apple-muted" style="margin-bottom:14px;">
+            一键进入企业诊断、双公司对比或企业+宏观联动场景，方便展示完整作品链路。
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    presets = [
+        "请总结ST生物2023年的经营质量、风险点和关注指标",
+        "对比华兰生物和乐普医疗2023年的经营差异",
+        "结合2022到2024年医疗卫生机构变化，分析ST生物的经营环境",
+    ]
+    cols = st.columns(3)
+    for index, preset in enumerate(presets):
+        with cols[index]:
+            if st.button(preset, key=f"demo_preset_{index}", use_container_width=True):
+                queue_system_prompt(preset)
+                st.rerun()
+
+
+def render_chat_status_line(client, filters, use_cache):
+    mode = "DeepSeek 增强模式" if client is not None else "本地检索模式"
+    selected_company = filters.get("company_name") or "未限定企业"
+    selected_year = filters.get("report_year") or "最新可用年份"
+    cache_label = "开启" if use_cache else "关闭"
+    st.caption(f"{mode} | 企业：{selected_company} | 年份：{selected_year} | 语义缓存：{cache_label}")
+
+
+def render_thinking_state(stage="正在联合关系库、向量库和宏观数据整理答案，请稍候。"):
+    st.markdown(
+        f"""
+        <div class="thinking-shell">
+          <div class="thinking-title">正在深度思考</div>
+          <div class="thinking-desc">{stage}</div>
+          <div class="thinking-bar"></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_answer_summary_card(summary_card):
+    if not summary_card:
+        return
+    st.markdown(
+        f"""
+        <div class="apple-card" style="padding:16px 18px; margin-bottom:14px; border-radius:20px;">
+          <div style="font-size:0.9rem; color:#6b7280; margin-bottom:6px;">{summary_card['title']}</div>
+          <div style="font-size:1rem; font-weight:700; line-height:1.6;">{summary_card['body']}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def build_effective_filters(filters):
+    effective = dict(filters or {})
+    context = st.session_state.system_context
+    if not effective.get("company_name") and context.get("company_name"):
+        effective["company_name"] = context["company_name"]
+    if not effective.get("report_year") and context.get("report_year"):
+        effective["report_year"] = context["report_year"]
+    return effective
+
+
+def enrich_followup_prompt(prompt, filters):
+    text = (prompt or "").strip()
+    if not text:
+        return text
+    context = st.session_state.system_context
+    company = filters.get("company_name") or context.get("company_name")
+    compare_companies = context.get("compare_companies") or []
+    year = filters.get("report_year") or context.get("report_year")
+    last_topic = context.get("last_topic")
+    macro_topic = context.get("macro_topic")
+    short_followup = any(text.startswith(prefix) for prefix in ["继续", "再", "那", "并且", "同时", "顺便"])
+    if company and short_followup and company not in text:
+        prefix = f"基于{company}"
+        if year and str(year) not in text:
+            prefix += f"{year}年"
+        text = f"{prefix}，{text}"
+    if macro_topic and company and "宏观" not in text and any(token in text for token in ["环境", "影响", "结合", "那"]):
+        text = f"{text}，并结合宏观卫生数据"
+    if last_topic and len(text) < 18 and company and company not in text:
+        text = f"围绕{company}，{text}"
+    if compare_companies and any(token in text for token in ["继续对比", "再对比", "差异", "谁更", "哪个更"]) and not any(name in text for name in compare_companies):
+        text = f"对比{'、'.join(compare_companies[:2])}，{text}"
+    return text
+
+
+def update_system_context(prompt, result, filters):
+    context = st.session_state.system_context
+    context["company_name"] = filters.get("company_name") or context.get("company_name")
+    context["report_year"] = filters.get("report_year") or context.get("report_year")
+    context["macro_topic"] = bool(result.get("macro_rows") or ("宏观" in prompt) or ("卫生" in prompt))
+    context["last_topic"] = prompt
+    companies = []
+    for source in result.get("sources") or []:
+        label = source.get("label") or ""
+        if " / " in label:
+            candidate = label.split(" / ", 1)[0].strip()
+            if candidate and "第" not in candidate and "年" not in candidate and "国家统计局" not in candidate:
+                companies.append(candidate)
+    context["compare_companies"] = [name for index, name in enumerate(companies) if name not in companies[:index]][:3]
+
+
+def build_followup_prompts(question, filters, result):
+    context = st.session_state.system_context
+    compare_companies = context.get("compare_companies") or []
+    company = filters.get("company_name") or (compare_companies[0] if compare_companies else "该公司")
+    prompts = []
+    if len(compare_companies) >= 2:
+        prompts.append(f"继续对比{'、'.join(compare_companies[:2])}的经营差异")
+    if result.get("macro_rows"):
+        prompts.append(f"把这些宏观变化和{company}的经营表现结合起来分析")
+    if result.get("sql_rows"):
+        prompts.append(f"把{company}的关键财务指标按趋势重新总结一遍")
+    if result.get("chunks"):
+        prompts.append(f"从年报原文里继续追问{company}的主要风险点")
+    prompts.append(f"请生成一份关于{company}的可追溯摘要")
+    ordered = []
+    seen = set()
+    for prompt in prompts:
+        if prompt not in seen:
+            ordered.append(prompt)
+            seen.add(prompt)
+    return ordered[:3]
+
+
+def render_supporting_evidence(message, prefix):
+    has_support = any(
+        message.get(key)
+        for key in ["sources", "warnings", "sql", "sql_rows", "macro_sql", "macro_rows", "chunks"]
+    )
+    if not has_support:
+        return
+    with st.expander("查看依据", expanded=False):
+        if message.get("sources"):
+            render_sources(message["sources"])
+        if message.get("sql"):
+            st.markdown("**企业 SQL**")
+            st.code(message["sql"], language="sql")
+        if message.get("macro_sql"):
+            st.markdown("**宏观 SQL**")
+            st.code(message["macro_sql"], language="sql")
+        if message.get("warnings"):
+            for warning in message["warnings"]:
+                st.caption(warning)
+        if message.get("chunks"):
+            st.markdown("**检索片段**")
+            for index, chunk in enumerate(message["chunks"][:3], start=1):
+                meta = chunk.get("metadata") or {}
+                st.markdown(f"[{index}] {meta.get('source', '未知来源')} 第{meta.get('page') or '?'}页")
+                st.caption((chunk.get("text") or "")[:220])
+        followups = message.get("followups") or []
+        if followups:
+            st.markdown("**继续追问**")
+            cols = st.columns(len(followups))
+            for index, prompt in enumerate(followups):
+                with cols[index]:
+                    if st.button(prompt, key=f"{prefix}_followup_{index}", use_container_width=True):
+                        queue_system_prompt(prompt)
+                        st.rerun()
+
+
+def render_basic_chat_tab(filters, top_k, use_cache, use_demo_cache):
     st.markdown('<section class="apple-section">', unsafe_allow_html=True)
     section_head("💬", "智能问答", "融合 SQL、向量检索与语义缓存的基础企业分析工作台。")
     cache = get_semantic_cache() if use_cache else None
@@ -533,53 +991,113 @@ def render_basic_chat_tab(filters, top_k, use_cache):
         client = create_default_client()
     except Exception:
         client = None
+    render_chat_status_line(client, filters, use_cache)
+    if not st.session_state.system_messages:
+        render_chat_empty_state()
+    render_demo_guide()
+    render_demo_launchers()
     for message in st.session_state.system_messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             if message.get("chart_spec"):
                 render_chart(message["chart_spec"])
-            if message.get("sources"):
-                render_sources(message["sources"])
             if message.get("warnings"):
                 for warning in message["warnings"]:
                     st.caption(warning)
-    prompt = st.chat_input("输入企业运营、财务或研报分析问题", key="system_chat_input")
+            if message["role"] == "assistant":
+                render_supporting_evidence(message, prefix=f"history_{message.get('message_id', 'msg')}")
+    pending_prompt = st.session_state.pop("system_pending_prompt", None)
+    live_prompt = st.chat_input("输入企业运营、财务或研报分析问题", key="system_chat_input")
+    prompt = pending_prompt or live_prompt
     if prompt:
-        st.session_state.system_messages.append({"role": "user", "content": prompt})
+        effective_filters = build_effective_filters(filters)
+        enriched_prompt = enrich_followup_prompt(prompt, effective_filters)
+        st.session_state.system_messages.append({"role": "user", "content": enriched_prompt})
         with st.chat_message("user"):
-            st.markdown(prompt)
+            st.markdown(enriched_prompt)
         with st.chat_message("assistant"):
             try:
+                thinking_placeholder = st.empty()
+                with thinking_placeholder.container():
+                    render_thinking_state("正在理解问题并匹配企业、年份与上下文。")
                 if cache:
-                    cache_result = cache.check_cache(prompt)
+                    cache_result = cache.check_cache(enriched_prompt)
                     if cache_result["hit"]:
                         st.session_state.cache_metrics["hits"] += 1
-                        result = {"answer_markdown": cache_result["answer"], "chart_spec": None, "sources": [{"label": f"语义缓存命中（{cache_result['mode']}）", "snippet": f"score={cache_result['score']:.4f}"}]}
+                        result = {
+                            "answer_markdown": cache_result["answer"],
+                            "chart_spec": None,
+                            "sources": [{"label": f"语义缓存命中（{cache_result['mode']}）", "snippet": f"score={cache_result['score']:.4f}"}],
+                            "warnings": [],
+                        }
                     else:
                         st.session_state.cache_metrics["misses"] += 1
-                        result = answer_query(prompt, filters=filters, top_k=top_k, client=client)
-                        cache.update_cache(prompt, result["answer_markdown"])
+                        with thinking_placeholder.container():
+                            render_thinking_state("正在检索财务数据、年报原文和宏观指标。")
+                        result = get_chat_cache(enriched_prompt) if use_demo_cache else None
+                        if result is None:
+                            result = answer_query(enriched_prompt, filters=effective_filters, top_k=top_k, client=client)
+                        cache.update_cache(enriched_prompt, result["answer_markdown"])
                 else:
-                    result = answer_query(prompt, filters=filters, top_k=top_k, client=client)
-                st.markdown(result["answer_markdown"])
+                    with thinking_placeholder.container():
+                        render_thinking_state("正在检索财务数据、年报原文和宏观指标。")
+                    result = get_chat_cache(enriched_prompt) if use_demo_cache else None
+                    if result is None:
+                        result = answer_query(enriched_prompt, filters=effective_filters, top_k=top_k, client=client)
+                with thinking_placeholder.container():
+                    render_thinking_state("正在生成结论并整理可追溯证据。")
+                thinking_placeholder.empty()
+                chips = build_result_chips(
+                    question=enriched_prompt,
+                    sql_rows=result.get("sql_rows"),
+                    macro_rows=result.get("macro_rows"),
+                    sources=result.get("sources"),
+                    route=result.get("route"),
+                )
+                summary_card = extract_summary_card(result["answer_markdown"])
+                metric_cards = extract_metric_cards(result["answer_markdown"])
+                render_chip_row(chips)
+                render_answer_summary_card(summary_card)
+                render_metric_cards(metric_cards)
+                rendered_answer = render_streamed_markdown(result["answer_markdown"])
                 if client is None:
                     st.caption("当前未配置 DEEPSEEK_API_KEY，已自动降级为本地检索摘要模式。")
                 if result.get("warnings"):
                     for warning in result["warnings"]:
                         st.caption(warning)
                 render_chart(result.get("chart_spec"))
-                render_sources(result.get("sources"))
+                followups = build_followup_prompts(enriched_prompt, effective_filters, result)
+                update_system_context(enriched_prompt, result, effective_filters)
+                assistant_message = {
+                    "role": "assistant",
+                    "content": rendered_answer,
+                    "chart_spec": result.get("chart_spec"),
+                    "sources": result.get("sources"),
+                    "warnings": result.get("warnings"),
+                    "sql": result.get("sql"),
+                    "sql_rows": result.get("sql_rows"),
+                    "macro_sql": result.get("macro_sql"),
+                    "macro_rows": result.get("macro_rows"),
+                    "chunks": result.get("chunks"),
+                    "followups": followups,
+                    "message_id": len(st.session_state.system_messages),
+                    "resolved_prompt": enriched_prompt,
+                }
+                render_supporting_evidence(assistant_message, prefix=f"live_{assistant_message['message_id']}")
                 st.session_state.system_messages.append(
-                    {
-                        "role": "assistant",
-                        "content": result["answer_markdown"],
-                        "chart_spec": result.get("chart_spec"),
-                        "sources": result.get("sources"),
-                        "warnings": result.get("warnings"),
-                    }
+                    assistant_message
                 )
+                st.session_state.pending_chat_scroll_id = assistant_message["message_id"]
             except Exception as exc:
+                try:
+                    thinking_placeholder.empty()
+                except Exception:
+                    pass
                 st.error(f"执行失败：{exc}")
+    pending_scroll_id = st.session_state.get("pending_chat_scroll_id")
+    if pending_scroll_id is not None and pending_scroll_id != st.session_state.get("consumed_chat_scroll_id"):
+        render_auto_scroll_bottom(f"chat-{pending_scroll_id}")
+        st.session_state.consumed_chat_scroll_id = pending_scroll_id
     st.markdown('</section>', unsafe_allow_html=True)
 
 
@@ -589,8 +1107,8 @@ def render_persona_tab(role, model):
     for message in st.session_state.persona_messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-    prompt = st.chat_input("从不同角色视角分析问题", key="persona_chat_input")
-    if prompt:
+    prompt = st.text_input("从不同角色视角分析问题", key="persona_text_input", placeholder="例如：从监管机构视角分析 ST生物 2023 年的主要风险")
+    if st.button("发送角色分析问题", key="persona_submit_button", use_container_width=True) and prompt:
         st.session_state.persona_messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -602,14 +1120,15 @@ def render_persona_tab(role, model):
                 )
                 st.markdown(answer)
                 st.session_state.persona_messages.append({"role": "assistant", "content": answer})
+                st.session_state.persona_text_input = ""
             except Exception as exc:
                 st.error(f"调用失败：{exc}")
     st.markdown('</section>', unsafe_allow_html=True)
 
 
-def render_workflow_tab(filters, top_k):
+def render_workflow_tab(filters, top_k, use_demo_cache):
     st.markdown('<section class="apple-section">', unsafe_allow_html=True)
-    section_head("🪄", "自动化报告", "用串行状态机把大纲规划、SQL、RAG 与研报生成一键串起来。")
+    section_head("🪄", "自动化报告", "用串行状态机把真实检索、证据聚合与报告生成一键串起来。")
     topic = st.text_input("报告主题", value="请为 ST生物 生成经营质量与风险诊断报告", key="workflow_topic")
     if st.button("生成深度诊断报告", key="workflow_button"):
         try:
@@ -618,11 +1137,14 @@ def render_workflow_tab(filters, top_k):
             client = None
         try:
             with st.status("正在执行自动化研报工作流...", expanded=True) as status:
-                st.write("步骤一：规划报告大纲")
+                st.write("步骤一：理解报告主题")
                 st.write("步骤二：执行真实 SQL 检索")
                 st.write("步骤三：执行真实向量检索")
-                st.write("步骤四：聚合信息并生成最终研报")
-                st.session_state.workflow_result = run_workflow(topic, filters=filters, top_k=top_k, client=client)
+                st.write("步骤四：聚合证据并生成最终研报")
+                st.session_state.workflow_result = get_workflow_cache(topic) if use_demo_cache else None
+                if st.session_state.workflow_result is None:
+                    st.session_state.workflow_result = run_workflow(topic, filters=filters, top_k=top_k, client=client)
+                st.session_state.pending_workflow_scroll_nonce = st.session_state.get("pending_workflow_scroll_nonce", 0) + 1
                 status.update(label="研报生成完成", state="complete")
         except Exception as exc:
             st.error(f"生成失败：{exc}")
@@ -631,10 +1153,14 @@ def render_workflow_tab(filters, top_k):
     if result:
         render_workflow_result(result)
         st.download_button("下载 Markdown 报告", result["report_markdown"].encode("utf-8"), file_name="system_report.md", mime="text/markdown")
+    pending_nonce = st.session_state.get("pending_workflow_scroll_nonce", 0)
+    if pending_nonce and pending_nonce != st.session_state.get("consumed_workflow_scroll_nonce", 0):
+        render_auto_scroll_bottom(f"workflow-{pending_nonce}")
+        st.session_state.consumed_workflow_scroll_nonce = pending_nonce
     st.markdown('</section>', unsafe_allow_html=True)
 
 
-def render_graph_tab(company_name):
+def render_graph_tab(company_name, use_demo_cache):
     st.markdown('<section class="apple-section">', unsafe_allow_html=True)
     section_head("🕸️", "企业图谱", "股权穿透、风险雷达与创新指数在一个玻璃化工作台中联动展示。")
     if not company_name:
@@ -646,10 +1172,30 @@ def render_graph_tab(company_name):
     except Exception:
         client = None
     try:
-        result = run_advanced_analysis("请分析该公司的股权结构、司法风险与创新能力", company_name=company_name, client=client)
+        result = get_advanced_cache(company_name, "请分析该公司的股权结构、司法风险与创新能力") if use_demo_cache else None
+        if result is None:
+            result = run_advanced_analysis("请分析该公司的股权结构、司法风险与创新能力", company_name=company_name, client=client)
         if client is None:
             st.caption("当前未配置 DEEPSEEK_API_KEY，已降级为结构化本地分析结果。")
-        st.markdown(result["answer_markdown"])
+        tool_results = result.get("tool_results") or {}
+        equity = tool_results.get("equity") or {}
+        risk = tool_results.get("risk") or {}
+        innovation = tool_results.get("innovation") or {}
+        summary_items = []
+        if equity.get("summary"):
+            summary_items.append(f"股权网络包含 {equity['summary'].get('node_count', 0)} 个节点、{equity['summary'].get('edge_count', 0)} 条边。")
+        if risk.get("dimensions"):
+            summary_items.append(
+                f"近三年风险事件 {risk['dimensions'].get('风险事件总数', 0)} 起，其中高风险 {risk['dimensions'].get('高风险事件数', 0)} 起。"
+            )
+        if innovation.get("dimensions"):
+            summary_items.append(
+                f"专利总量 {innovation['dimensions'].get('专利总量', 0)}，平均专利评分 {innovation['dimensions'].get('平均专利评分', 0)}。"
+            )
+        if summary_items:
+            st.markdown("### 图谱摘要")
+            for item in summary_items:
+                st.markdown(f"- {item}")
         for block in result.get("viz_blocks") or []:
             st.markdown(f"### {block['title']}")
             render_echarts(options=block["option"], height="460px")
@@ -713,26 +1259,28 @@ def render_status_tab(stats, chroma_stats):
 
 
 def main():
-    st.set_page_config(page_title="企业运营分析与决策支持统一系统", layout="wide")
+    st.set_page_config(page_title="医药生物企业智能分析与决策支持系统", layout="wide")
     inject_apple_ui()
+    inject_layout_bridge()
     init_state()
-    filters, top_k, role, model, use_cache, stats, chroma_stats, companies = build_unified_sidebar()
+    filters, top_k, role, model, use_cache, use_demo_cache, stats, chroma_stats, companies = build_unified_sidebar()
     selected_company = filters.get("company_name") or (companies[0] if companies else None)
     render_hero_section(stats, chroma_stats)
-    st.caption(f"SQLite: {Path(DEFAULT_DB_PATH)} | Chroma: {Path(DEFAULT_CHROMA_PATH)} | DeepSeek: {DEEPSEEK_BASE_URL}")
+    render_competition_brief()
+    st.markdown('<span class="top-path-caption">&nbsp;</span>', unsafe_allow_html=True)
 
     tab_chat, tab_persona, tab_workflow, tab_graph, tab_whitebox, tab_status = st.tabs(
-        ["智能问答", "多角色分析", "自动化报告", "企业图谱", "白盒溯源", "调试与状态"]
+        ["💬 智能问答", "🧭 多角色分析", "🪄 自动化报告", "🕸️ 企业图谱", "🔬 白盒溯源", "🧰 调试与状态"]
     )
 
     with tab_chat:
-        render_basic_chat_tab(filters, top_k, use_cache)
+        render_basic_chat_tab(filters, top_k, use_cache, use_demo_cache)
     with tab_persona:
         render_persona_tab(role, model)
     with tab_workflow:
-        render_workflow_tab(filters, top_k)
+        render_workflow_tab(filters, top_k, use_demo_cache)
     with tab_graph:
-        render_graph_tab(selected_company)
+        render_graph_tab(selected_company, use_demo_cache)
     with tab_whitebox:
         render_whitebox_tab()
     with tab_status:

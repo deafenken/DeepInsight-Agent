@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from datetime import datetime
 
 import pandas as pd
@@ -7,7 +8,7 @@ import streamlit as st
 from openai import OpenAI
 
 from retriever import build_context_bundle, build_sources, create_optional_client, execute_sql, generate_sql, retrieve_chunks
-from ui_common import build_sidebar, get_project_paths_caption, render_sources
+from ui_common import build_result_chips, build_sidebar, extract_metric_cards, extract_summary_card, get_project_paths_caption, render_chip_row, render_interactive_table, render_metric_cards, render_sources, render_streamed_markdown
 
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
@@ -17,6 +18,15 @@ LOCAL_OUTLINE = """
 - 三、文档检索发现
 - 四、主要风险与后续关注点
 """.strip()
+
+PREFERRED_REPORT_METRICS = [
+    "营业收入",
+    "归属于上市公司股东的净利润",
+    "经营活动产生的现金流量净额",
+    "净资产收益率",
+    "总资产",
+    "研发费用",
+]
 
 
 def get_client():
@@ -94,24 +104,121 @@ def query_chroma_chunks(topic, filters=None, top_k=5, client=None):
 
 
 def build_local_report(topic, outline, sql_result, rag_result, sources, warnings, data_mode):
-    sections = [f"## 工作流结果（{data_mode}）", "", f"**主题**：{topic}", "", "## 报告大纲", outline or LOCAL_OUTLINE]
-    if sql_result.get("sql_rows"):
-        sections.extend(["", "## 财务指标摘要"])
-        for row in sql_result["sql_rows"][:10]:
-            metric = row.get("indicator_name") or row.get("indicator") or "指标"
-            value = row.get("value_num") if row.get("value_num") is not None else row.get("value_text")
-            sections.append(f"- {metric}：{value}")
-    if rag_result.get("chunks"):
-        sections.extend(["", "## 文档检索发现"])
-        for chunk in rag_result["chunks"][:5]:
-            meta = chunk.get("metadata") or {}
-            sections.append(f"- {meta.get('source', '未知来源')} 第{meta.get('page') or '?'}页：{chunk.get('text', '')[:140]}")
+    sql_rows = sql_result.get("sql_rows") or []
+    rag_chunks = rag_result.get("chunks") or []
+    company_name = next((row.get("company_name") for row in sql_rows if row.get("company_name")), "目标企业")
+
+    def normalize_unit(value, unit):
+        if unit == "%" and isinstance(value, (int, float)) and abs(value) > 1000:
+            return ""
+        return unit or ""
+
+    def format_value(value, unit=None):
+        if value is None:
+            return "暂无披露"
+        normalized_unit = normalize_unit(value, unit)
+        if isinstance(value, (int, float)):
+            abs_value = abs(value)
+            if normalized_unit == "%":
+                rendered = f"{value:.2f}".rstrip("0").rstrip(".")
+            elif abs_value >= 100000000:
+                rendered = f"{value / 100000000:.2f}".rstrip("0").rstrip(".")
+                normalized_unit = "亿元"
+            elif abs_value >= 10000 and normalized_unit in {"元", ""}:
+                rendered = f"{value / 10000:.2f}".rstrip("0").rstrip(".")
+                normalized_unit = "万元" if normalized_unit == "元" else normalized_unit
+            else:
+                rendered = f"{value:.2f}".rstrip("0").rstrip(".")
+            return f"{rendered}{normalized_unit}"
+        return f"{value}{normalized_unit}"
+
+    def pick_metric_pair(rows, indicator_name):
+        metric_rows = [row for row in rows if row.get("indicator_name") == indicator_name]
+        if not metric_rows:
+            return None, None
+
+        def score(row):
+            value = row.get("value_num")
+            unit = row.get("unit")
+            unit_score = 2 if unit == "元" else (1 if unit not in {"%", None} else 0)
+            magnitude_score = abs(value) if isinstance(value, (int, float)) else 0
+            page_score = -(row.get("source_page") or 9999)
+            return (1 if row.get("value_role") == "current" else 0, unit_score, magnitude_score, page_score)
+
+        current_candidates = [row for row in metric_rows if row.get("value_role") == "current"] or metric_rows
+        current = max(current_candidates, key=score)
+        historical_candidates = [
+            row for row in metric_rows
+            if row is not current and row.get("value_role") == "historical" and row.get("value_num") is not None
+        ]
+        historical = max(historical_candidates, key=score) if historical_candidates else None
+        return current, historical
+
+    def build_metric_line(indicator_name):
+        current, historical = pick_metric_pair(sql_rows, indicator_name)
+        if not current:
+            return None, None
+        current_value = current.get("value_num") if current.get("value_num") is not None else current.get("value_text")
+        unit = current.get("unit")
+        line = f"- {indicator_name}：{format_value(current_value, unit)}"
+        direction = None
+        if historical and isinstance(current_value, (int, float)) and isinstance(historical.get("value_num"), (int, float)):
+            delta = current_value - historical["value_num"]
+            direction = "上升" if delta > 0 else ("下降" if delta < 0 else "基本持平")
+            line += f"，较上期{direction}"
+        if current.get("source_page"):
+            line += f"（第{current['source_page']}页）"
+        return line, direction
+
+    summary_bits = []
+    metric_lines = []
+    for metric_name in PREFERRED_REPORT_METRICS:
+        metric_line, direction = build_metric_line(metric_name)
+        if not metric_line:
+            continue
+        metric_lines.append(metric_line)
+        if direction and metric_name in {"营业收入", "归属于上市公司股东的净利润", "经营活动产生的现金流量净额", "净资产收益率"}:
+            summary_bits.append(f"{metric_name}{direction}")
+
+    evidence_lines = []
+    for chunk in rag_chunks[:3]:
+        meta = chunk.get("metadata") or {}
+        snippet = re.sub(r"\s+", " ", chunk.get("text", "")).strip()[:160]
+        evidence_lines.append(f"- {meta.get('source', '未知来源')} 第{meta.get('page') or '?'}页：{snippet}")
+
+    sections = [f"## 工作流结果（{data_mode}）", "", f"**主题**：{topic}"]
+    sections.extend(
+        [
+            "",
+            "### 摘要判断",
+            (
+                f"{company_name}当前呈现出"
+                + ("、".join(summary_bits[:3]) if summary_bits else "经营表现需要结合更多样本继续判断")
+                + "的特征。该报告基于本地结构化财务事实与年报原文片段生成，适合作为比赛演示和快速诊断入口。"
+            ),
+        ]
+    )
+    if metric_lines:
+        sections.extend(["", "### 关键指标"])
+        sections.extend(metric_lines[:5])
+    if evidence_lines:
+        sections.extend(["", "### 文档证据"])
+        sections.extend(evidence_lines)
+    sections.extend(["", "### 风险与建议"])
     if warnings:
-        sections.extend(["", "## 限制与告警"])
-        sections.extend([f"- {warning}" for warning in warnings])
+        sections.extend([f"- {warning}" for warning in warnings[:3]])
+    else:
+        sections.extend(
+            [
+                "- 建议继续结合多期财务数据核验经营质量变化，避免单年结论失真。",
+                "- 建议重点查看管理层讨论与分析、重大风险提示和现金流相关附注页。",
+            ]
+        )
+    sections.extend(["", "### 证据边界"])
+    sections.append("- 当前为本地降级研报，未调用大模型深度改写，因此正文更偏证据驱动而非完整卖方文风。")
     if sources:
-        sections.extend(["", "## 参考来源"])
-        sections.extend([f"- {source['label']}" for source in sources[:10]])
+        sections.extend(["", "### 参考来源"])
+        sections.extend([f"- {source['label']}" for source in sources[:8]])
     return "\n".join(sections)
 
 
@@ -164,10 +271,28 @@ def run_workflow(topic, filters=None, top_k=5, client=None):
 
 def render_workflow_result(result):
     render_data_mode_banner(result.get("data_mode"), result.get("warnings"), result.get("client"))
-    st.markdown("## 报告大纲")
-    st.markdown(result["outline"])
     st.markdown("## 最终研报")
-    st.markdown(result["report_markdown"])
+    chips = build_result_chips(
+        sql_rows=result.get("sql_rows"),
+        macro_rows=[],
+        sources=result.get("sources"),
+        route="hybrid" if result.get("sql_rows") and result.get("rag_chunks") else ("sql" if result.get("sql_rows") else "vector"),
+    )
+    summary_card = extract_summary_card(result["report_markdown"])
+    metric_cards = extract_metric_cards(result["report_markdown"])
+    render_chip_row(chips)
+    if summary_card:
+        st.markdown(
+            f"""
+            <div style="padding:16px 18px; margin-bottom:14px; border-radius:18px; background:#ffffff; border:1px solid rgba(15,23,42,0.08); box-shadow:0 10px 24px rgba(15,23,42,0.06);">
+              <div style="font-size:0.9rem; color:#6b7280; margin-bottom:6px;">{summary_card['title']}</div>
+              <div style="font-size:1rem; font-weight:700; line-height:1.6;">{summary_card['body']}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    render_metric_cards(metric_cards)
+    render_streamed_markdown(result["report_markdown"])
     if result.get("sources"):
         render_sources(result["sources"])
     with st.expander("查看中间结果", expanded=False):
@@ -177,7 +302,7 @@ def render_workflow_result(result):
         else:
             st.caption("本次未生成可执行 SQL。")
         if result.get("sql_rows"):
-            st.dataframe(pd.DataFrame(result["sql_rows"]))
+            render_interactive_table(pd.DataFrame(result["sql_rows"]), max_rows=80, caption="悬停单元格可查看完整值。")
         else:
             st.caption("本次未取得 SQL 结果。")
         st.markdown("### 向量检索结果")
@@ -211,10 +336,10 @@ def main():
     if st.button("生成深度诊断报告", type="primary"):
         with st.status("正在执行自动化研报工作流...", expanded=True) as status:
             try:
-                st.write("步骤一：规划报告大纲")
+                st.write("步骤一：理解报告主题")
                 st.write("步骤二：执行真实 SQL 检索")
                 st.write("步骤三：执行真实向量检索")
-                st.write("步骤四：聚合信息并生成最终研报")
+                st.write("步骤四：聚合证据并生成最终研报")
                 st.session_state.workflow_result = run_workflow(topic, filters=filters, top_k=top_k, client=client)
                 status.update(label="研报生成完成", state="complete")
             except Exception as exc:
