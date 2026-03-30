@@ -118,6 +118,8 @@ python3 -m deepinsight.dataops.data_pipeline
 
 当前 `deepinsight.dataops.data_pipeline` 会默认优先导入 [Final_md](/Volumes/ORICO/code1/Final_md)，并递归扫描“按公司名分文件夹”的完整版研报目录结构；如果需要，也可以通过 `--input-dir` 显式指定其他目录。
 
+出于仓库体积控制考虑，完整版 `Final_md/` 语料目录、本地归档压缩包以及审计生成的 CSV 默认不纳入 Git 仓库；上传到 GitHub 时保留代码与说明，语料文件请在本地自行放置。
+
 当前导入链路还支持：
 
 - 同公司同年份新版文档替换后，自动清理旧版向量与财务事实

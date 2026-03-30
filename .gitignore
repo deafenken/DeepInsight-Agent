@@ -1,12 +1,16 @@
 __pycache__/
 *.pyc
 .DS_Store
+.codex/
 .claude/settings.local.json
 ._*
+Final_md/
+audit_md/*.csv
 data/*
 !data/raw_macro/
 !data/raw_macro/*.xlsx
 !data/archives/
 !data/archives/*.zip
+data/archives/final_md_full.zip
 reports_md/
 reports_md.zip
