@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>医药生物企业智能分析与决策支持系统</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260330x" />
   </head>
   <body>
     <div class="shell">
@@ -25,6 +25,12 @@
         <section class="panel">
           <h2>演示控制台</h2>
           <label class="field">
+            <span>行业</span>
+            <select id="industrySelect">
+              <option value="">全部</option>
+            </select>
+          </label>
+          <label class="field">
             <span>企业</span>
             <select id="companySelect">
               <option value="">全部</option>
@@ -34,6 +40,13 @@
             <span>年份</span>
             <select id="yearSelect">
               <option value="">全部</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>排名范围</span>
+            <select id="rankingScopeSelect">
+              <option value="industry">只看同一级行业</option>
+              <option value="all">查看全部行业</option>
             </select>
           </label>
           <label class="field">
@@ -57,23 +70,106 @@
       <main class="main">
         <section class="hero">
           <div>
-            <p class="eyebrow">参赛作品自建网页演示版</p>
-            <h2>像 ChatGPT 一样提问，同时保留企业诊断、宏观联动、图谱分析与可追溯证据能力</h2>
+            <p class="eyebrow">答辩展示首页</p>
+            <h2>面向医药生物行业的企业研判与决策支持平台</h2>
             <p class="hero-copy">
-              当前版本基于 FastAPI 自托管，已经脱离 Streamlit，正在收口为适合答辩、录屏和部署展示的比赛版网页。
+              系统以企业年报、财务事实、宏观指标与图谱数据为底座，支持自然语言问答、公司画像、同业比较、宏观联动、白盒溯源与自动报告生成，当前版本已适配答辩展示、录屏演示与本地部署。
             </p>
           </div>
           <div id="modePill" class="mode-pill">加载中</div>
         </section>
 
-        <section class="tabs">
-          <button class="tab active" data-tab="chat">💬 智能问答</button>
-          <button class="tab" data-tab="workflow">🪄 自动化报告</button>
-          <button class="tab" data-tab="advanced">🕸️ 高级分析</button>
-          <button class="tab" data-tab="whitebox">🔬 白盒溯源</button>
+        <section id="topTabs" class="tabs" style="display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;padding:2px 2px 8px;">
+          <button class="tab active" data-tab="showcase" title="答辩模式">🎤 答辩</button>
+          <button class="tab" data-tab="project" title="项目介绍">🧭 项目</button>
+          <button class="tab" data-tab="database" title="数据库表">🗃️ 数据库</button>
+          <button class="tab" data-tab="dashboard" title="运营看板">📈 看板</button>
+          <button class="tab" data-tab="profile" title="公司画像">🏥 画像</button>
+          <button class="tab" data-tab="compare" title="对比矩阵">⚖️ 对比</button>
+          <button class="tab" data-tab="timeline" title="事件时间轴">🕒 时间轴</button>
+          <button class="tab" data-tab="chat" title="智能问答">💬 问答</button>
+          <button class="tab" data-tab="workflow" title="自动化报告">🪄 报告</button>
+          <button class="tab" data-tab="advanced" title="高级分析">🕸️ 高级</button>
+          <button class="tab" data-tab="whitebox" title="白盒溯源">🔬 溯源</button>
+          <button class="tab" data-tab="snapshots" title="快照中心">🗂️ 快照</button>
         </section>
 
-        <section id="chatTab" class="tab-panel active">
+        <section id="showcaseTab" class="tab-panel active">
+          <div id="showcaseHero" class="dashboard-section"></div>
+          <div id="showcaseScenes" class="dashboard-section"></div>
+          <div id="showcaseSpotlight" class="dashboard-section"></div>
+          <div id="showcaseFlow" class="dashboard-section"></div>
+          <div id="showcasePlaybook" class="dashboard-section"></div>
+        </section>
+
+        <section id="projectTab" class="tab-panel">
+          <div id="projectOverview" class="dashboard-section"></div>
+        </section>
+
+        <section id="databaseTab" class="tab-panel">
+          <div class="panel workflow-form">
+            <div class="database-toolbar">
+              <label class="field">
+                <span>数据表</span>
+                <select id="databaseTableSelect">
+                  <option value="">请选择数据表</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>预览行数</span>
+                <select id="databaseLimitSelect">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>搜索表名</span>
+                <input id="databaseSearchInput" type="search" placeholder="搜索中文名、英文表名或字段名" />
+              </label>
+              <button id="databaseRefreshButton" class="primary" type="button">刷新表预览</button>
+            </div>
+          </div>
+          <div id="databaseCatalog" class="dashboard-section"></div>
+          <div id="databasePreview" class="dashboard-section"></div>
+        </section>
+
+        <section id="dashboardTab" class="tab-panel">
+          <div id="dashboardOverview" class="dashboard-grid"></div>
+          <div id="trendDashboard" class="dashboard-section"></div>
+          <div id="rankingDashboard" class="dashboard-section"></div>
+          <div id="alertDashboard" class="dashboard-section"></div>
+          <div id="macroDashboard" class="dashboard-section"></div>
+        </section>
+
+        <section id="profileTab" class="tab-panel">
+          <div id="profileDashboard" class="dashboard-section"></div>
+        </section>
+
+        <section id="compareTab" class="tab-panel">
+          <div class="panel workflow-form">
+            <div class="compare-form">
+              <label class="field">
+                <span>主公司</span>
+                <div id="comparePrimaryCompany" class="readonly-pill">跟随左侧企业选择</div>
+              </label>
+              <label class="field">
+                <span>对比公司</span>
+                <select id="compareCompanySelect">
+                  <option value="">自动匹配同业公司</option>
+                </select>
+              </label>
+            </div>
+            <button id="compareRefreshButton" class="primary" type="button">刷新对比矩阵</button>
+          </div>
+          <div id="compareDashboard" class="dashboard-section"></div>
+        </section>
+
+        <section id="timelineTab" class="tab-panel">
+          <div id="timelineDashboard" class="dashboard-section"></div>
+        </section>
+
+        <section id="chatTab" class="tab-panel">
           <div id="chatMessages" class="messages"></div>
           <div id="chatFollowups" class="followups"></div>
           <form id="chatForm" class="composer">
@@ -88,9 +184,15 @@
               <span>报告主题</span>
               <textarea id="workflowInput" rows="3">请为 ST生物 生成经营质量与风险诊断报告</textarea>
             </label>
+            <label class="field">
+              <span>批量公司名单</span>
+              <textarea id="batchCompaniesInput" rows="2" placeholder="多个公司名可用逗号、顿号或换行分隔，例如：ST生物，华兰生物，乐普医疗"></textarea>
+            </label>
             <div class="action-row">
               <button id="workflowButton" class="primary" type="button">生成自动化报告</button>
+              <button id="batchWorkflowButton" class="ghost" type="button">批量生成报告</button>
               <button id="workflowDownloadButton" class="ghost" type="button">下载 Markdown</button>
+              <button id="workflowPdfButton" class="ghost" type="button">导出 PDF</button>
             </div>
           </div>
           <div id="workflowResult" class="workflow-result"></div>
@@ -111,6 +213,18 @@
         <section id="whiteboxTab" class="tab-panel">
           <div id="whiteboxResult" class="workflow-result"></div>
         </section>
+
+        <section id="snapshotsTab" class="tab-panel">
+          <div class="panel workflow-form">
+            <div class="action-row">
+              <button id="saveDashboardSnapshotButton" class="ghost" type="button">保存当前看板快照</button>
+              <button id="saveChatSnapshotButton" class="ghost" type="button">保存最近问答快照</button>
+              <button id="saveWorkflowSnapshotButton" class="ghost" type="button">保存最近报告快照</button>
+            </div>
+          </div>
+          <div id="snapshotList" class="dashboard-section"></div>
+          <div id="snapshotPreview" class="workflow-result"></div>
+        </section>
       </main>
     </div>
 
@@ -126,6 +240,7 @@
     </template>
 
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-    <script src="/static/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script src="/static/app.js?v=20260330x"></script>
   </body>
   </html>

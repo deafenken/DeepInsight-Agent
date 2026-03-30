@@ -14,7 +14,19 @@ from deepinsight.core.retriever import DEFAULT_CHROMA_PATH, DEFAULT_COLLECTION, 
 def load_filters():
     conn = get_connection(DEFAULT_DB_PATH)
     try:
-        industries = [row[0] for row in conn.execute("SELECT industry_name FROM dim_industry ORDER BY industry_name").fetchall()]
+        industries = [
+            row[0]
+            for row in conn.execute(
+                """
+                SELECT industry_name
+                FROM dim_industry
+                WHERE COALESCE(industry_level, 2) >= 2
+                ORDER BY industry_name
+                """
+            ).fetchall()
+        ]
+        if not industries:
+            industries = [row[0] for row in conn.execute("SELECT industry_name FROM dim_industry ORDER BY industry_name").fetchall()]
         companies = [row[0] for row in conn.execute("SELECT company_name FROM dim_company ORDER BY company_name").fetchall()]
         years = [row[0] for row in conn.execute("SELECT DISTINCT report_year FROM dim_document WHERE report_year IS NOT NULL ORDER BY report_year DESC").fetchall()]
         stats = {

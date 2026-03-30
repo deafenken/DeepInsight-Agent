@@ -255,6 +255,25 @@ def find_company_names_in_question(question, db_path=DEFAULT_DB_PATH, limit=3):
         conn.close()
 
 
+def resolve_company_industry_name(company_name, db_path=DEFAULT_DB_PATH):
+    if not company_name:
+        return None
+    conn = get_connection(db_path)
+    try:
+        row = conn.execute(
+            """
+            SELECT i.industry_name
+            FROM dim_company c
+            LEFT JOIN dim_industry i ON i.industry_id = c.primary_industry_id
+            WHERE c.company_name = ?
+            """,
+            (company_name,),
+        ).fetchone()
+        return row["industry_name"] if row and row["industry_name"] else None
+    finally:
+        conn.close()
+
+
 def resolve_local_query_filters(question, filters=None, db_path=DEFAULT_DB_PATH):
     resolved = dict(filters or {})
     question_companies = find_company_names_in_question(question, db_path=db_path)
@@ -262,6 +281,11 @@ def resolve_local_query_filters(question, filters=None, db_path=DEFAULT_DB_PATH)
         resolved["company_names"] = question_companies
         if not resolved.get("company_name"):
             resolved["company_name"] = question_companies[0]
+    if resolved.get("company_name") and not resolved.get("industry_name") and len(resolved.get("company_names") or []) <= 1:
+        industry_name = resolve_company_industry_name(resolved["company_name"], db_path=db_path)
+        if industry_name:
+            resolved["industry_name"] = industry_name
+            resolved["industry_name_inferred"] = True
     if resolved.get("report_year") is None:
         year_from_question = infer_year_from_question(question)
         if year_from_question:
@@ -430,13 +454,20 @@ def execute_sql(sql, db_path=DEFAULT_DB_PATH):
 def build_chroma_filter(filters=None):
     filters = filters or {}
     conditions = []
+    company_names = [name for name in (filters.get("company_names") or []) if name]
+    apply_industry_filter = bool(filters.get("industry_name")) and not filters.get("industry_name_inferred")
     if filters.get("doc_type"):
         conditions.append({"doc_type": filters["doc_type"]})
-    if filters.get("company_name"):
+    if company_names:
+        if len(company_names) == 1:
+            conditions.append({"company_name": company_names[0]})
+        else:
+            conditions.append({"$or": [{"company_name": name} for name in company_names]})
+    elif filters.get("company_name"):
         conditions.append({"company_name": filters["company_name"]})
     if filters.get("report_year"):
         conditions.append({"report_year": int(filters["report_year"])})
-    if filters.get("industry_name"):
+    if apply_industry_filter:
         conditions.append({"industry_name": filters["industry_name"]})
     if len(conditions) == 1:
         return conditions[0]
@@ -445,19 +476,80 @@ def build_chroma_filter(filters=None):
     return None
 
 
+def select_top_chunks(scored_chunks, top_k, company_names=None):
+    ordered = [item for _, item in sorted(scored_chunks, key=lambda item: item[0], reverse=True)]
+    if not company_names or len(company_names) < 2:
+        return ordered[:top_k]
+
+    selected = []
+    seen_ids = set()
+    normalized_names = [name for name in company_names if name]
+    for company_name in normalized_names:
+        for item in ordered:
+            metadata = item.get("metadata") or {}
+            chunk_key = (
+                metadata.get("document_id"),
+                metadata.get("chunk_index"),
+                metadata.get("page"),
+                item.get("text"),
+            )
+            if metadata.get("company_name") != company_name or chunk_key in seen_ids:
+                continue
+            selected.append(item)
+            seen_ids.add(chunk_key)
+            break
+    for item in ordered:
+        metadata = item.get("metadata") or {}
+        chunk_key = (
+            metadata.get("document_id"),
+            metadata.get("chunk_index"),
+            metadata.get("page"),
+            item.get("text"),
+        )
+        if chunk_key in seen_ids:
+            continue
+        selected.append(item)
+        seen_ids.add(chunk_key)
+        if len(selected) >= top_k:
+            break
+    return selected[:top_k]
+
+
+def query_collection_candidates(collection, embedding, filters, top_k):
+    where = build_chroma_filter(filters)
+    kwargs = {
+        "query_embeddings": [embedding],
+        "n_results": min(max(top_k * 3, top_k), 15),
+        "include": ["documents", "metadatas", "distances"],
+    }
+    if where:
+        kwargs["where"] = where
+    return collection.query(**kwargs)
+
+
 def retrieve_chunks(question, filters=None, top_k=5, client=None, chroma_path=DEFAULT_CHROMA_PATH, collection_name=DEFAULT_COLLECTION):
     collection = get_collection(chroma_path, collection_name)
     embedding_client = LocalEmbeddingClient()
     embedding = embedding_client.embed([question])[0]
-    where = build_chroma_filter(filters)
-    kwargs = {"query_embeddings": [embedding], "n_results": min(max(top_k * 3, top_k), 15), "include": ["documents", "metadatas", "distances"]}
-    if where:
-        kwargs["where"] = where
-    result = collection.query(**kwargs)
     chunks = []
-    documents = result.get("documents", [[]])[0]
-    metadatas = result.get("metadatas", [[]])[0]
-    distances = result.get("distances", [[]])[0]
+    filters = filters or {}
+    company_names = [name for name in (filters.get("company_names") or []) if name]
+    if len(company_names) >= 2:
+        results = []
+        shared_filters = {key: value for key, value in filters.items() if key not in {"company_names", "company_name"}}
+        for company_name in company_names:
+            company_filters = dict(shared_filters)
+            company_filters["company_name"] = company_name
+            results.append(query_collection_candidates(collection, embedding, company_filters, top_k))
+    else:
+        results = [query_collection_candidates(collection, embedding, filters, top_k)]
+    documents = []
+    metadatas = []
+    distances = []
+    for result in results:
+        documents.extend(result.get("documents", [[]])[0])
+        metadatas.extend(result.get("metadatas", [[]])[0])
+        distances.extend(result.get("distances", [[]])[0])
     query_terms = [term for term in re.findall(r"[\u4e00-\u9fffA-Za-z0-9]+", question or "") if len(term) >= 2]
     query_focus_terms = ["经营", "风险", "环境", "主营业务", "概述", "行业", "市场", "竞争", "研发", "现金流", "收入", "利润"]
     scored_chunks = []
@@ -475,8 +567,6 @@ def retrieve_chunks(question, filters=None, top_k=5, client=None, chroma_path=DE
         if pipe_ratio > 0.08:
             continue
         text = document or ""
-        if metadata and metadata.get("page") is None:
-            continue
         if any(term in text for term in ["股东与股东大会", "独立董事", "监事会", "公司治理", "释义"]):
             continue
         if any(term in question for term in ["经营", "风险", "环境", "质量"]) and not any(term in text for term in query_focus_terms):
@@ -484,7 +574,7 @@ def retrieve_chunks(question, filters=None, top_k=5, client=None, chroma_path=DE
                 continue
         score = -(distance or 0)
         if metadata and metadata.get("page") in {None, 1, 2, 3, 4, 5}:
-            score -= 0.35
+            score -= 0.2 if metadata.get("page") is None else 0.35
         if "年度报告全文" in text:
             score -= 0.15
         noisy_terms = ["董事", "监事", "股东大会", "释义", "名词解释", "公司治理", "审计", "账龄", "坏账准备"]
@@ -493,8 +583,7 @@ def retrieve_chunks(question, filters=None, top_k=5, client=None, chroma_path=DE
         score += sum(0.16 for term in positive_terms if term in text)
         score += sum(min(0.08 * text.count(term), 0.24) for term in query_terms if term in text)
         scored_chunks.append((score, {"text": document, "metadata": metadata, "distance": distance}))
-    scored_chunks.sort(key=lambda item: item[0], reverse=True)
-    for _, item in scored_chunks[:top_k]:
+    for item in select_top_chunks(scored_chunks, top_k, filters.get("company_names") if filters else None):
         chunks.append(item)
     return chunks
 

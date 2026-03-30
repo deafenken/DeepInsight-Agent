@@ -768,7 +768,7 @@ def init_state():
 
 
 def build_unified_sidebar():
-    _, companies, years, stats = load_filters()
+    industries, companies, years, stats = load_filters()
     chroma_stats = load_chroma_stats()
     st.sidebar.title("医药生物控制台")
     st.sidebar.markdown("### 系统状态")
@@ -778,6 +778,7 @@ def build_unified_sidebar():
     st.sidebar.write(f"宏观事实数：{stats['macro_facts']}")
     st.sidebar.write(f"文本块数：{chroma_stats['chunks']}")
 
+    industry = st.sidebar.selectbox("行业", ["全部"] + industries, index=0)
     company = st.sidebar.selectbox("企业", ["全部"] + companies, index=0)
     year = st.sidebar.selectbox("年份", ["全部"] + [str(item) for item in years], index=0)
     role = st.sidebar.radio("角色模式", list(ROLE_PROMPTS.keys()), index=list(ROLE_PROMPTS.keys()).index(st.session_state.selected_role))
@@ -797,6 +798,8 @@ def build_unified_sidebar():
     st.session_state.use_demo_cache = use_demo_cache
 
     filters = {}
+    if industry != "全部":
+        filters["industry_name"] = industry
     if company != "全部":
         filters["company_name"] = company
     if year != "全部":
@@ -885,10 +888,11 @@ def render_demo_launchers():
 
 def render_chat_status_line(client, filters, use_cache):
     mode = "DeepSeek 增强模式" if client is not None else "本地检索模式"
+    selected_industry = filters.get("industry_name") or "未限定行业"
     selected_company = filters.get("company_name") or "未限定企业"
     selected_year = filters.get("report_year") or "最新可用年份"
     cache_label = "开启" if use_cache else "关闭"
-    st.caption(f"{mode} | 企业：{selected_company} | 年份：{selected_year} | 语义缓存：{cache_label}")
+    st.caption(f"{mode} | 行业：{selected_industry} | 企业：{selected_company} | 年份：{selected_year} | 语义缓存：{cache_label}")
 
 
 def render_thinking_state(stage="正在联合关系库、向量库和宏观数据整理答案，请稍候。"):

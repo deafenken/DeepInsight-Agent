@@ -294,6 +294,51 @@ def build_context_for_llm(question, equity_data, risk_data, innovation_data):
     )
 
 
+def build_advanced_fallback_answer(question, equity_data, risk_data, innovation_data):
+    lines = [
+        "## 快速结论",
+        f"- 已基于 {equity_data.get('root_company') or risk_data.get('company_name') or innovation_data.get('company_name') or '目标公司'} 的股权、风险与创新工具结果生成摘要。",
+    ]
+    equity_summary = equity_data.get("summary") or {}
+    lines.extend(
+        [
+            "### 股权结构",
+            f"- 节点数：{equity_summary.get('node_count', 0)}",
+            f"- 关系数：{equity_summary.get('edge_count', 0)}",
+        ]
+    )
+    risk_dimensions = risk_data.get("dimensions") or {}
+    if risk_dimensions:
+        lines.extend(
+            [
+                "### 风险概览",
+                f"- 高风险事件数：{risk_dimensions.get('高风险事件数', 0)}",
+                f"- 中风险事件数：{risk_dimensions.get('中风险事件数', 0)}",
+                f"- 低风险事件数：{risk_dimensions.get('低风险事件数', 0)}",
+                f"- 风险事件总数：{risk_dimensions.get('风险事件总数', 0)}",
+            ]
+        )
+    innovation_dimensions = innovation_data.get("dimensions") or {}
+    if innovation_dimensions:
+        lines.extend(
+            [
+                "### 创新概览",
+                f"- 专利总量：{innovation_dimensions.get('专利总量', 0)}",
+                f"- 发明占比：{innovation_dimensions.get('发明占比', 0)}",
+                f"- 近三年活跃度：{innovation_dimensions.get('近三年活跃度', 0)}",
+                f"- 平均专利评分：{innovation_dimensions.get('平均专利评分', 0)}",
+            ]
+        )
+    lines.extend(
+        [
+            "### 说明",
+            f"- 当前问题：{question}",
+            "- 页面下方同时展示了图谱/雷达可视化与工具来源摘要，可继续展开查看细节。",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def route_advanced_question(question, company_name, client=None):
     if client:
         prompt = [
@@ -326,7 +371,7 @@ def run_advanced_analysis(question, company_name, db_path=DEFAULT_DB_PATH, clien
     context = build_context_for_llm(question, equity_data, risk_data, innovation_data)
     if client is None:
         return {
-            "answer_markdown": context,
+            "answer_markdown": build_advanced_fallback_answer(question, equity_data, risk_data, innovation_data),
             "sources": build_sources_from_tools(equity_data, risk_data, innovation_data),
             "viz_blocks": build_viz_blocks(equity_data, risk_data, innovation_data),
             "tool_results": {

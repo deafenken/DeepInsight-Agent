@@ -16,7 +16,7 @@
 比赛展示主页面：
 
 ```bash
-streamlit run app_system.py
+streamlit run scripts/streamlit/system_console.py
 ```
 
 也可以直接使用：
@@ -59,17 +59,24 @@ http://localhost:8000
 
 当前网页版已支持：
 
+- 答辩模式首页：默认给出演示顺序、场景脚本、一键切场景、全屏与大屏展示
 - ChatGPT 风格主问答页面
-- 自动化报告页面
-- 企业/年份筛选
-- 关键指标卡片、来源折叠、简单图表展示
+- 运营看板：导入结果看板、财务趋势卡、行业横向排名、预警中心、宏观联动
+- 公司 360 画像页：财务、风险、创新、股权结构联动展示
+- 对比矩阵页：双公司核心指标、风险和专利对比
+- 事件时间轴页：财务、风险、创新事件串联
+- 自动化报告页面：支持单公司生成、批量生成、Markdown 下载与浏览器打印导出 PDF
+- 收藏与快照：可把看板、问答、报告保存到本地浏览器，方便答辩回放
+- 企业/行业/年份筛选
+- 医药细分赛道行业筛选与同级行业排名
+- 关键指标卡片、来源折叠、证据定位、简单图表展示
 
 ## 演示缓存 JSON
 
 为了让比赛演示和测试运行更快，项目已支持将主要功能预计算为本地 JSON 缓存：
 
 ```bash
-python3 demo_cache.py
+python3 -m deepinsight.demo.demo_cache
 ```
 
 或：
@@ -104,8 +111,34 @@ python3 -m pip install -r requirements.txt
 ## 初始化数据
 
 ```bash
-python3 db_init.py
-python3 db_expand.py
+python3 -m deepinsight.dataops.db_init
+python3 -m deepinsight.dataops.db_expand
+python3 -m deepinsight.dataops.data_pipeline
+```
+
+当前 `deepinsight.dataops.data_pipeline` 会默认优先导入 [Final_md](/Volumes/ORICO/code1/Final_md)，并递归扫描“按公司名分文件夹”的完整版研报目录结构；如果需要，也可以通过 `--input-dir` 显式指定其他目录。
+
+当前导入链路还支持：
+
+- 同公司同年份新版文档替换后，自动清理旧版向量与财务事实
+- 文件未变化时自动跳过，支持断点续跑
+- `SQLite WAL + busy_timeout`，避免并发导入时出现 `database is locked`
+- `--force` 强制重跑指定目录或文件
+- 表格、堆叠式财务摘要、显式指标行三类财务事实抽取
+- 对“只有图片占位、没有正文”的 Markdown 做空文本识别，不再写入占位 chunks，并在导入输出中标记 `状态=源文档无可抽取正文`
+
+如果需要在导入前先扫描源文件质量，可以执行：
+
+```bash
+python3 -m deepinsight.dataops.data_pipeline --input-dir /Volumes/ORICO/code1/Final_md --audit-text-quality --audit-output /Volumes/ORICO/code1/audit_md/final_md_text_quality.csv
+```
+
+其中 `--min-text-ratio` 可调整风险阈值，默认 `5%`。
+
+如果需要为现有公司回填医药行业与细分赛道标签，可以执行：
+
+```bash
+python3 -m deepinsight.dataops.data_pipeline --backfill-industries
 ```
 
 ## 导入宏观数据
@@ -113,7 +146,7 @@ python3 db_expand.py
 项目支持将国家统计局卫生类 Excel 直接导入 `fact_macro_data`：
 
 ```bash
-python3 macro_import.py --excel-path "/Volumes/ORICO/code1/data/raw_macro/国家统计局_卫生_2022_2024.xlsx"
+python3 -m deepinsight.dataops.macro_import --excel-path "/Volumes/ORICO/code1/data/raw_macro/国家统计局_卫生_2022_2024.xlsx"
 ```
 
 ## 主要页面
@@ -121,20 +154,20 @@ python3 macro_import.py --excel-path "/Volumes/ORICO/code1/data/raw_macro/国家
 基础问答页：
 
 ```bash
-streamlit run app.py
+streamlit run scripts/streamlit/chat_console.py
 ```
 
 统一系统页：
 
 ```bash
-streamlit run app_system.py
+streamlit run scripts/streamlit/system_console.py
 ```
 
 可选页面：
 
 ```bash
-streamlit run app_advanced.py
-streamlit run workflow_report.py
+streamlit run scripts/streamlit/analysis_studio.py
+streamlit run scripts/streamlit/report_studio.py
 ```
 
 ## 测试
@@ -183,7 +216,7 @@ export DEEPSEEK_MODEL=deepseek-chat
 
 ## 代码结构
 
-当前仓库已经按功能整理为更接近成品项目的结构，顶层保留的是兼容启动入口，主要实现代码已归档到 `deepinsight/` 包下：
+当前仓库已经按功能整理为更接近成品项目的结构，顶层主要保留配置、数据目录和项目说明；Streamlit 启动脚本统一收纳在 `scripts/streamlit/`，主要实现代码归档在 `deepinsight/` 包下：
 
 - [deepinsight/apps](/Volumes/ORICO/code1/deepinsight/apps): Streamlit 页面与比赛主入口
 - [deepinsight/core](/Volumes/ORICO/code1/deepinsight/core): 检索、缓存、图谱工具与通用 UI 组件
@@ -191,6 +224,8 @@ export DEEPSEEK_MODEL=deepseek-chat
 - [deepinsight/demo](/Volumes/ORICO/code1/deepinsight/demo): 演示缓存 JSON 构建逻辑
 - [deepinsight/experiments](/Volumes/ORICO/code1/deepinsight/experiments): 非主链路实验代码
 - [deepinsight/config.py](/Volumes/ORICO/code1/deepinsight/config.py): 统一路径与项目级配置
+- [scripts/streamlit](/Volumes/ORICO/code1/scripts/streamlit): Streamlit 页面启动脚本
+- [scripts/README.md](/Volumes/ORICO/code1/scripts/README.md): 启动方式说明
 - [webapp](/Volumes/ORICO/code1/webapp): 自建网页版本
 - [demo_cache](/Volumes/ORICO/code1/demo_cache): 已生成的演示缓存 JSON
 - [audit_md](/Volumes/ORICO/code1/audit_md): 项目审查与问题记录文档
@@ -198,13 +233,13 @@ export DEEPSEEK_MODEL=deepseek-chat
 - [data/raw_macro](/Volumes/ORICO/code1/data/raw_macro): 宏观原始 Excel 数据
 - [data/archives](/Volumes/ORICO/code1/data/archives): 原始压缩包与归档文件
 
-常用兼容入口仍可直接使用：
+常用启动入口：
 
-- [app_system.py](/Volumes/ORICO/code1/app_system.py): 比赛展示主入口
-- [app.py](/Volumes/ORICO/code1/app.py): 基础问答入口
-- [app_advanced.py](/Volumes/ORICO/code1/app_advanced.py): 高级分析入口
-- [workflow_report.py](/Volumes/ORICO/code1/workflow_report.py): 自动化报告入口
-- [macro_import.py](/Volumes/ORICO/code1/macro_import.py): 宏观 Excel 导入入口
+- [system_console.py](/Volumes/ORICO/code1/scripts/streamlit/system_console.py): 比赛展示主入口
+- [chat_console.py](/Volumes/ORICO/code1/scripts/streamlit/chat_console.py): 基础问答入口
+- [analysis_studio.py](/Volumes/ORICO/code1/scripts/streamlit/analysis_studio.py): 高级分析入口
+- [report_studio.py](/Volumes/ORICO/code1/scripts/streamlit/report_studio.py): 自动化报告入口
+- [deepinsight.dataops.macro_import](/Volumes/ORICO/code1/deepinsight/dataops/macro_import.py): 宏观 Excel 导入模块
 
 ## 当前数据状态
 
