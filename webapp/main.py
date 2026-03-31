@@ -1038,7 +1038,7 @@ def _fetch_user_tables(conn) -> list[dict[str, Any]]:
 
 
 def _quote_identifier(identifier: str) -> str:
-    return f'"{identifier.replace("\"", "\"\"")}"'
+    return '"' + identifier.replace('"', '""') + '"'
 
 
 def fetch_database_catalog() -> dict[str, Any]:
