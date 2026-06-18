@@ -1,0 +1,71 @@
+<x-dc>
+<div style="width:100%">
+  <sc-if value="{{ hasLegend }}">
+    <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px">
+      <sc-for list="{{ legend }}" as="lg">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-2)">
+          <span style="width:9px;height:9px;border-radius:2px;display:inline-block;background:{{ lg.color }}"></span>
+          <span>{{ lg.name }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+  <div style="display:flex;align-items:flex-end;gap:12px;height:{{ barsH }}px">
+    <sc-for list="{{ groups }}" as="grp">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;min-width:0">
+        <div style="flex:1;display:flex;align-items:flex-end;justify-content:center;gap:5px;width:100%">
+          <sc-for list="{{ grp.bars }}" as="b">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;width:{{ barW }}">
+              <span style="font-size:9.5px;font-weight:600;color:var(--text-3);margin-bottom:3px;white-space:nowrap">{{ b.value }}</span>
+              <div style="width:100%;border-radius:4px 4px 0 0;background:{{ b.color }};height:{{ b.h }}"></div>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size:10.5px;color:var(--text-3);text-align:center;line-height:1.3">{{ grp.label }}</span>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const labels = Array.isArray(p.labels) ? p.labels : [];
+    let series = (Array.isArray(p.series) ? p.series : []).filter(s => s && Array.isArray(s.values));
+    const barsH = Number(p.height) || 230;
+
+    const all = [];
+    series.forEach(s => s.values.forEach(v => { const n = Number(v); if (v != null && isFinite(n)) all.push(n); }));
+    let max = Math.max.apply(null, all);
+    if (!isFinite(max) || max <= 0) max = 1;
+
+    const fmt = (v) => {
+      const n = Number(v);
+      if (v == null || !isFinite(n)) return '';
+      return Number.isInteger(n) ? n.toLocaleString('en-US') : n.toFixed(1);
+    };
+
+    const count = Math.max(1, labels.length);
+    const groups = [];
+    for (let i = 0; i < count; i++) {
+      const bars = series.map(s => {
+        const v = s.values[i];
+        const n = Number(v);
+        const valid = v != null && isFinite(n);
+        const h = valid ? Math.max(0, (n / max) * 100) : 0;
+        return { color: s.color || 'var(--brand-500)', h: h.toFixed(1) + '%', value: fmt(v) };
+      });
+      groups.push({ label: labels[i] != null ? String(labels[i]) : '', bars });
+    }
+
+    const barW = series.length >= 3 ? '15px' : (series.length === 2 ? '22px' : '34px');
+
+    return {
+      barsH, groups, barW,
+      legend: series.map(s => ({ name: s.name || '', color: s.color || 'var(--brand-500)' })),
+      hasLegend: series.length > 1
+    };
+  }
+}
+</script>

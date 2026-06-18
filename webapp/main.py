@@ -24,6 +24,8 @@ class ChatRequest(BaseModel):
     industry_name: str | None = None
     report_year: int | None = None
     top_k: int = Field(default=5, ge=1, le=10)
+    history: list[dict[str, Any]] | None = None
+    model: str | None = None
 
 
 class WorkflowRequest(BaseModel):
@@ -1109,6 +1111,26 @@ def fetch_database_table_preview(table_name: str, limit: int = 20) -> dict[str, 
         conn.close()
 
 
+def fetch_data_room_catalog() -> dict[str, Any]:
+    catalog = fetch_database_catalog()
+    return {
+        "table_count": catalog["table_count"],
+        "table_names": catalog["table_names"],
+        "tables": catalog["tables"],
+    }
+
+
+def fetch_data_room_preview(name: str, limit: int = 20) -> dict[str, Any]:
+    preview = fetch_database_table_preview(name, limit)
+    return {
+        "table_name": preview["table_name"],
+        "limit": preview["limit"],
+        "row_count": preview["row_count"],
+        "columns": preview["columns"],
+        "rows": preview["rows"],
+    }
+
+
 def fetch_company_trend_dashboard(company_name: str | None) -> dict[str, Any]:
     conn = get_connection(DEFAULT_DB_PATH)
     try:
@@ -1366,11 +1388,27 @@ def database_table(table_name: str, limit: int = 20) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
+@app.get("/api/data-room/catalog")
+def data_room_catalog() -> dict[str, Any]:
+    return fetch_data_room_catalog()
+
+
+@app.get("/api/data-room/preview")
+def data_room_preview(name: str, limit: int = 20) -> dict[str, Any]:
+    try:
+        return fetch_data_room_preview(name, limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
 @app.post("/api/chat")
 def chat(payload: ChatRequest) -> dict[str, Any]:
     client = create_optional_client()
+    answer_client = client
+    if client is not None and payload.model == "pro":
+        answer_client = create_optional_client("deepseek-v4-pro")
     filters = build_filters(payload.company_name, payload.report_year, payload.industry_name)
-    result = answer_query(payload.question, filters=filters, top_k=payload.top_k, client=client)
+    result = answer_query(payload.question, filters=filters, top_k=payload.top_k, client=client, history=payload.history, answer_client=answer_client)
     return {
         "question": payload.question,
         "answer_markdown": result.get("answer_markdown", ""),

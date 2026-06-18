@@ -6,6 +6,8 @@ from webapp.main import (
     fetch_company_profile_dashboard,
     fetch_company_timeline_dashboard,
     fetch_company_trend_dashboard,
+    fetch_data_room_catalog,
+    fetch_data_room_preview,
     fetch_database_catalog,
     fetch_database_table_preview,
     fetch_import_dashboard,
@@ -98,6 +100,17 @@ class WebappDashboardTests(unittest.TestCase):
         self.assertLessEqual(len(payload["rows"]), 5)
         self.assertIn("row_count", payload)
         self.assertIn("create_sql", payload)
+
+    def test_fetch_data_room_preview_omits_raw_schema_sql(self):
+        catalog = fetch_data_room_catalog()
+        self.assertIn("tables", catalog)
+        payload = fetch_data_room_preview("dim_company", limit=5)
+
+        self.assertEqual(payload["table_name"], "dim_company")
+        self.assertIn("columns", payload)
+        self.assertIn("rows", payload)
+        self.assertNotIn("create_sql", payload)
+        self.assertNotIn("database_path", payload)
 
     def test_build_batch_workflow_markdown_joins_reports(self):
         markdown = build_batch_workflow_markdown(

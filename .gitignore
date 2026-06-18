@@ -14,3 +14,19 @@ data/*
 data/archives/final_md_full.zip
 reports_md/
 reports_md.zip
+
+# virtualenv / runtime
+.venv/
+pip-install.log
+
+# deployment secrets (only the example is tracked)
+deploy/env/webapp.env
+
+# local backups / deploy snapshots / editor swap
+*.bak
+*.bak.*
+*.deployed.*
+*.swp
+
+# archived pre-redesign frontend (kept locally, recoverable from git history)
+webapp/static/_legacy_native/

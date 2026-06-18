@@ -1,0 +1,83 @@
+<x-dc>
+<div style="width:100%">
+  <sc-if value="{{ hasLegend }}">
+    <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px">
+      <sc-for list="{{ legend }}" as="lg">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-2)">
+          <span style="width:9px;height:9px;border-radius:2px;display:inline-block;background:{{ lg.color }}"></span>
+          <span>{{ lg.name }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+  <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;display:block;overflow:visible;height:{{ svgH }}px">
+    <sc-for list="{{ grid }}" as="g">
+      <line x1="0" x2="100" y1="{{ g.y }}" y2="{{ g.y }}" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"></line>
+    </sc-for>
+    <sc-for list="{{ areas }}" as="a">
+      <polyline points="{{ a.points }}" fill="{{ a.color }}" fill-opacity="0.10" stroke="none"></polyline>
+    </sc-for>
+    <sc-for list="{{ lines }}" as="ln">
+      <polyline points="{{ ln.points }}" fill="none" stroke="{{ ln.color }}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+    </sc-for>
+  </svg>
+  <div style="display:flex;justify-content:space-between;margin-top:8px">
+    <sc-for list="{{ xlabels }}" as="x">
+      <span style="font-size:10.5px;color:var(--text-3)">{{ x }}</span>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props || {};
+    const labels = Array.isArray(p.labels) ? p.labels : [];
+    let series = (Array.isArray(p.series) ? p.series : []).filter(s => s && Array.isArray(s.values));
+
+    const svgH = Number(p.height) || 210;
+
+    // Collect all finite values to derive the y-range.
+    const all = [];
+    series.forEach(s => s.values.forEach(v => { const n = Number(v); if (v != null && isFinite(n)) all.push(n); }));
+    let min = Math.min.apply(null, all), max = Math.max.apply(null, all);
+    if (!isFinite(min) || !isFinite(max)) { min = 0; max = 1; }
+    if (min === max) { const pad = Math.abs(min) || 1; min -= pad; max += pad; }
+    else { const pad = (max - min) * 0.12; min -= pad; max += pad; }
+
+    const n = Math.max(1, labels.length || (series[0] ? series[0].values.length : 1));
+    const X = (i) => n <= 1 ? 50 : (i / (n - 1)) * 100;
+    const Y = (v) => 100 - ((Number(v) - min) / (max - min)) * 100;
+
+    // Default: fill the area only when there is a single series (multi-series areas overlap badly).
+    const wantArea = (p.area === undefined || p.area === null) ? (series.length === 1) : !!p.area;
+
+    const lines = [], areas = [];
+    series.forEach((s, si) => {
+      const pts = [];
+      let lastI = 0;
+      s.values.forEach((v, i) => {
+        const num = Number(v);
+        if (v == null || !isFinite(num)) return;
+        pts.push(X(i).toFixed(2) + ',' + Y(num).toFixed(2));
+        lastI = i;
+      });
+      if (!pts.length) return;
+      const color = s.color || 'var(--brand-500)';
+      lines.push({ points: pts.join(' '), color });
+      if (wantArea && si === 0) {
+        areas.push({ points: '0,100 ' + pts.join(' ') + ' ' + X(lastI).toFixed(2) + ',100', color });
+      }
+    });
+
+    const grid = [0, 25, 50, 75, 100].map(y => ({ y }));
+
+    return {
+      svgH, lines, areas, grid,
+      xlabels: labels,
+      legend: series.map(s => ({ name: s.name || '', color: s.color || 'var(--brand-500)' })),
+      hasLegend: series.length > 1
+    };
+  }
+}
+</script>

@@ -17,10 +17,12 @@ SYSTEM_PROMPT = """
 2. 资本图谱穿透：当被问及企业背景时，必须主动分析其背后的股东结构、实际控制人以及对外投资的子公司阵列。注意识别“隐蔽的关联交易”。
 3. 风险传染监控：如果主公司或其核心子公司存在“失信被执行”、“重大诉讼”或“环保处罚”，必须在回答开头以【🔴 风险预警】的醒目标签予以提示！
 4. 创新护城河：结合企业的专利申请类型和数量，评估其在“先进制造/电子信息”等赛道上的硬科技实力。
+5. 投资研判：你同时是资深投研分析师，必须在数据分析之后给出明确的【💡 投资参考】，结合财务质量、风险敞口、创新护城河与行业地位形成观点。
 
 【执行纪律】：
 - 所有的图谱关系、风险事件和定量数据必须来源于你通过工具检索到的本地 SQLite 数据库或 ChromaDB 向量库，严禁幻觉。
 - 综合输出时，必须结构化清晰（使用 Markdown 表格、加粗标记），并在每个核心事实后附带数据来源溯源标签。
+- 【💡 投资参考】需包含：综合研判（明确给出“偏多/中性/偏空”的倾向及核心理由）、关键催化剂与主要风险点；并务必以一句“以上为基于已检索数据的研究性分析，仅供参考，不构成任何投资建议。”收尾。
 
 【当前检索到的上下文信息】：
 {retrieved_context}
@@ -29,7 +31,7 @@ SYSTEM_PROMPT = """
 DEFAULT_DB_PATH = DB_PATH
 DEFAULT_CHROMA_PATH = CHROMA_DIR
 DEFAULT_COLLECTION = "enterprise_documents"
-DEEPSEEK_CHAT_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
+DEEPSEEK_CHAT_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
 DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/chat/completions")
 LLM_LOCK = threading.Lock()
 LOCAL_EMBEDDING_DIMENSIONS = 256
@@ -169,7 +171,28 @@ def route_question(question, filters=None, client=None):
     return {"route": route, "chart_intent": chart_intent, "reason": "rule_based"}
 
 
-def build_sql_prompt(question, filters=None):
+_FIN_IND_HINT = {}
+def get_financial_indicators_hint(db_path=DEFAULT_DB_PATH):
+    key = str(db_path)
+    if key in _FIN_IND_HINT:
+        return _FIN_IND_HINT[key]
+    hint = ''
+    try:
+        conn = get_connection(db_path)
+        rows = conn.execute("SELECT indicator_name, COALESCE(aliases,'') AS aliases FROM dict_financial_indicator ORDER BY indicator_name").fetchall()
+        conn.close()
+        parts = []
+        for _row in rows:
+            _al = _row['aliases']
+            parts.append(_row['indicator_name'] + (('（别名：' + _al + '）') if _al else ''))
+        hint = '；'.join(parts)
+    except Exception:
+        hint = ''
+    _FIN_IND_HINT[key] = hint
+    return hint
+
+
+def build_sql_prompt(question, filters=None, db_path=DEFAULT_DB_PATH):
     filters = filters or {}
     return [
         {
@@ -182,6 +205,7 @@ def build_sql_prompt(question, filters=None):
             ),
         },
         {"role": "system", "content": get_schema_text()},
+        {"role": "system", "content": "财务指标映射：fact_financial_report.indicator_id 关联 dict_financial_indicator；用户问题里的财务指标多为简称/口语（净利润、归母净利润、营收、ROE、毛利率、研发投入等），必须映射到下列【规范 indicator_name】之一，并在 SQL 中用 i.indicator_name = 规范名：\n" + get_financial_indicators_hint(db_path)},
         {"role": "user", "content": json.dumps({"question": question, "filters": filters}, ensure_ascii=False)},
     ]
 
@@ -418,7 +442,7 @@ def generate_local_macro_sql(question, db_path=DEFAULT_DB_PATH):
 
 def generate_sql(question, filters=None, client=None, db_path=DEFAULT_DB_PATH):
     if client:
-        raw = call_llm_serial(client, "text_to_sql", build_sql_prompt(question, filters))
+        raw = call_llm_serial(client, "text_to_sql", build_sql_prompt(question, filters, db_path))
         return sanitize_sql(raw)
     resolved_filters = resolve_local_query_filters(question, filters, db_path=db_path)
     company = resolved_filters.get("company_name")
@@ -802,7 +826,7 @@ def infer_chart_spec(sql_rows, route_info):
     }
 
 
-def generate_answer(question, context_bundle, sources, client=None):
+def generate_answer(question, context_bundle, sources, client=None, history=None, answer_client=None):
     if not context_bundle["text"].strip():
         return "未检索到相关内容。当前数据库命中的公司和文档可能不足，请先导入更多年报或在问题中明确公司名与年份。"
     if not client:
@@ -949,16 +973,40 @@ def generate_answer(question, context_bundle, sources, client=None):
             answer.extend([f"- {source['label']}" for source in sources])
         return "\n".join(answer)
     system_prompt = SYSTEM_PROMPT.format(retrieved_context=context_bundle["text"])
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": question},
+    messages = [{"role": "system", "content": system_prompt}]
+    for _m in (history or []):
+        _r = _m.get("role"); _c = (_m.get("content") or "").strip()
+        if _r in ("user", "assistant") and _c:
+            messages.append({"role": _r, "content": _c[:2000]})
+    messages.append({"role": "user", "content": question})
+    return call_llm_serial(answer_client or client, "answer", messages, temperature=0.2)
+
+
+def condense_question(question, history, client):
+    if not history or not client:
+        return question
+    parts = []
+    for _m in history[-6:]:
+        _m = _m or {}
+        _c = (_m.get('content') or '').strip()
+        if _c:
+            parts.append((_m.get('role') or 'user') + ': ' + _c[:600])
+    convo = '\n'.join(parts)
+    prompt = [
+        {'role': 'system', 'content': '你是检索问题改写助手。结合对话历史，把用户最新的问题改写成一个独立、完整、可单独检索的问题，必须显式保留公司名、年份、指标等关键信息。只输出改写后的问题本身，不要解释。'},
+        {'role': 'user', 'content': '对话历史:\n' + convo + '\n\n最新问题: ' + question + '\n\n改写后的独立问题:'},
     ]
-    return call_llm_serial(client, "answer", messages, temperature=0.2)
+    try:
+        out = (call_llm_serial(client, 'condense', prompt, temperature=0.0) or '').strip()
+        return out[:200] or question
+    except Exception:
+        return question
 
 
-def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chroma_path=DEFAULT_CHROMA_PATH, collection_name=DEFAULT_COLLECTION, client=None):
-    effective_filters = resolve_local_query_filters(question, filters, db_path=db_path) if not client else (filters or {})
-    route_info = route_question(question, effective_filters, client)
+def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chroma_path=DEFAULT_CHROMA_PATH, collection_name=DEFAULT_COLLECTION, client=None, history=None, answer_client=None):
+    rq = condense_question(question, history, client) if (history and client) else question
+    effective_filters = resolve_local_query_filters(rq, filters, db_path=db_path) if not client else (filters or {})
+    route_info = route_question(rq, effective_filters, client)
     sql = None
     sql_rows = []
     macro_sql = None
@@ -968,7 +1016,7 @@ def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chrom
 
     if route_info["route"] in {"sql", "hybrid"}:
         try:
-            sql = generate_sql(question, effective_filters, client, db_path=db_path)
+            sql = generate_sql(rq, effective_filters, client, db_path=db_path)
             sql_rows = execute_sql(sql, db_path)
         except (ValueError, sqlite3.Error) as exc:
             sql = None
@@ -978,14 +1026,14 @@ def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chrom
                 route_info["route"] = "vector"
     if route_info["route"] in {"vector", "hybrid"}:
         try:
-            chunks = retrieve_chunks(question, effective_filters, top_k, client, chroma_path, collection_name)
+            chunks = retrieve_chunks(rq, effective_filters, top_k, client, chroma_path, collection_name)
         except Exception as exc:
             chunks = []
             warnings.append(f"向量检索不可用：{exc}")
             if route_info["route"] == "vector":
                 route_info["route"] = "sql"
-    if effective_filters.get("company_name") and is_macro_question(question):
-        macro_sql, macro_rows = run_macro_side_query(question, db_path=db_path)
+    if effective_filters.get("company_name") and is_macro_question(rq):
+        macro_sql, macro_rows = run_macro_side_query(rq, db_path=db_path)
         if not macro_rows and macro_sql is None:
             warnings.append("宏观侧检索未命中可用指标。")
 
@@ -995,7 +1043,7 @@ def answer_query(question, filters=None, top_k=5, db_path=DEFAULT_DB_PATH, chrom
     context_bundle["sql_rows"] = sql_rows
     context_bundle["macro_rows"] = macro_rows
     context_bundle["chunks"] = chunks
-    answer_markdown = generate_answer(question, context_bundle, sources, client)
+    answer_markdown = generate_answer(question, context_bundle, sources, client, history=history, answer_client=answer_client)
     chart_spec = infer_chart_spec(sql_rows, route_info)
 
     return {
@@ -1018,7 +1066,7 @@ def create_default_client():
     return DeepSeekClient()
 
 
-def create_optional_client():
+def create_optional_client(chat_model=None):
     if not os.getenv("DEEPSEEK_API_KEY"):
         return None
-    return DeepSeekClient()
+    return DeepSeekClient(chat_model=chat_model)
