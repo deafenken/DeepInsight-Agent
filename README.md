@@ -57,6 +57,13 @@ make web
 http://localhost:8000
 ```
 
+如果要长期挂服务器并支持公网访问，建议直接使用仓库内的部署模板：
+
+- [deploy/README.md](deploy/README.md)
+- [deepinsight-web.service](deploy/systemd/deepinsight-web.service)
+- [deepinsight-agent.conf](deploy/nginx/deepinsight-agent.conf)
+- [webapp.env.example](deploy/env/webapp.env.example)
+
 当前网页版已支持：
 
 - 答辩模式首页：默认给出演示顺序、场景脚本、一键切场景、全屏与大屏展示

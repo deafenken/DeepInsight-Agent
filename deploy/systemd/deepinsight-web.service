@@ -1,0 +1,17 @@
+[Unit]
+Description=DeepInsight FastAPI Web App
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/DeepInsight-Agent
+EnvironmentFile=/root/DeepInsight-Agent/deploy/env/webapp.env
+ExecStart=/root/DeepInsight-Agent/.venv/bin/uvicorn webapp.main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips=*
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
